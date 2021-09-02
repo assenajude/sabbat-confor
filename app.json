@@ -2,9 +2,14 @@
   "expo": {
     "name": "sabbat-confort",
     "slug": "sabbat-confort",
+    "description": "Les meilleurs services E-Commerce, E-Location, E-Service en une seule application avec possibilité de commande à crédit.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -20,13 +25,31 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.sabbat.confort",
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "plugins": [
+      "sentry-expo",
+      "expo-image-picker",
+      "expo-file-system",
+      "expo-notifications"
+    ],
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "sabbat",
+            "project": "sabbat-confort-new",
+            "authToken": "f1f529f4997b4ad6a094a8be05c8023080d7d9cf490048c6b8026fcf441c69f3"
+          }
+        }
+      ]
     }
   }
 }
