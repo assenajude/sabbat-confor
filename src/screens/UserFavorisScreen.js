@@ -61,7 +61,9 @@ function UserFavorisScreen({navigation}) {
     }, [])
 
     useEffect(() => {
-        getStarted()
+        if(connectedUser.favoriteCompter > 0 || Object.keys(connectedUser).length>0) {
+            getStarted()
+        }
     }, [])
 
     if(!loading && useFavorites.length === 0) {
@@ -81,7 +83,7 @@ function UserFavorisScreen({navigation}) {
             alignItems: 'center'
         }}>
             <AppText>Impossible de consulter vos favoris, une erreur est apparue</AppText>
-            <AppButton title='recharger' onPress={getStarted}/>
+            <AppButton style={{width: 300}} title='recharger' onPress={getStarted}/>
         </View>
     }
 
@@ -120,7 +122,8 @@ function UserFavorisScreen({navigation}) {
                      <AppButton
                          style={{
                              alignSelf: 'center',
-                             marginVertical: 20
+                             marginVertical: 20,
+                             width: 200
                          }}
                         iconName='cart'
                          title='commander'

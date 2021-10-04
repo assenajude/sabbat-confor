@@ -65,12 +65,15 @@ function UserAdresseScreen({navigation}) {
             </View>}
             {!isUser && <View style={styles.container}>
                 <AppText>Vous devez vous connecter pour ajouter des adresses.</AppText>
-                <AppButton style={{padding: 5}} title='Je me connecte' onPress={() => navigation.navigate('AccueilNavigator', {screen: routes.LOGIN})}/>
+                <AppButton
+                    style={{marginVertical: 20, width: 300}}
+                    title='Je me connecte'
+                    onPress={() => navigation.navigate('AccueilNavigator', {screen: routes.LOGIN})}/>
             </View>}
-            {isUser && <View style={styles.addNewButton}>
-            <ListFooter onPress={() =>navigation.navigate('AccueilNavigator', {screen: routes.NEW_USER_ADDRESS, params: {mode: 'addNew'}})}/>
-            </View>}
-
+            {isUser &&
+            <ListFooter
+                onPress={() =>navigation.navigate('AccueilNavigator', {screen: routes.NEW_USER_ADDRESS, params: {mode: 'addNew'}})}/>
+            }
         </>
     );
 }
@@ -81,10 +84,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    addNewButton: {
-        position: 'absolute',
-        right: 5,
-        bottom: 5,
-    }
 })
 export default UserAdresseScreen;

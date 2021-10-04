@@ -8,28 +8,21 @@ import AddToCartModal from "../components/shoppingCart/AddToCartModal";
 import useAddToCart from "../hooks/useAddToCart";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import {getSelectedOptions} from "../store/slices/mainSlice";
-import {getToggleFavorite} from "../store/slices/userFavoriteSlice";
-import useItemReductionPercent from "../hooks/useItemReductionPercent";
 import useAuth from "../hooks/useAuth";
 import AppCardNew from "../components/AppCardNew";
 import useMainFeatures from "../hooks/useMainFeatures";
-import OrderHelpModal from "../components/OrderHelpModal";
 
 
 function ElocationScreen({navigation}) {
     const dispatch = useDispatch()
     const {userRoleAdmin}  = useAuth()
     const {addItemToCart} = useAddToCart()
-    const {getReductionPercent} = useItemReductionPercent()
     const {handleDeleteProduct} = useMainFeatures()
     const loading = useSelector(state => state.entities.location.loading)
     const cartLoading = useSelector(state => state.entities.shoppingCart.loading)
     const locations = useSelector(state => state.entities.location.availableLocation)
     const [elocationItemModal, setElocationItemModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState({})
-    const userFavorites = useSelector(state => state.entities.userFavorite.locationFavoris)
-    const [selectedSource, setSelectedSource]= useState(null)
-    const [helpModalVisible, setHelpModalVisible] = useState(false)
 
 
 
@@ -62,28 +55,15 @@ function ElocationScreen({navigation}) {
         {locations.length>0 && <FlatList data={locations} keyExtractor={(item, index) => index.toString()}
                   renderItem={({item}) =>
                       <AppCardNew
-                          showHelpInfo={() => {
-                              setSelectedSource(item.imagesLocation[0])
-                              setHelpModalVisible(true)
-                          }}
-                          isFavorite={userFavorites.some(fav => fav.id === item.id)}
-                          toggleFavorite={() => dispatch(getToggleFavorite(item))}
-                          description={item.libelleLocation}
-                          titleLabel={item.frequenceLocation.toLowerCase() == 'mensuelle'?'Coût mensuel:':'Coût journalier:'}
+                          item={item}
                           addToCart={() => handleAddToCart(item)}
-                          aideInfo={item.aide}
-                          firstTitle={item.coutPromo}
-                          secondTitle={item.coutReel}
                           viewDetails={() =>{
                               dispatch(getSelectedOptions(item))
                               navigation.navigate('AccueilNavigator', {screen: routes.LOCATION_DETAIL, params: item})
                           }}
-                          itemType={item.Categorie?item.Categorie.typeCateg : 'e-location'}
                           deleteItem={() => handleDeleteProduct(item)}
                           editItem={() => navigation.navigate(routes.NEW_LOCATION, item)}
-                          itemReductionPercent={getReductionPercent(item)}
-                          notInStock={item.qteDispo <= 0} title={item.libelleLocation}
-                          source={{uri: item.imagesLocation[0]}}/>
+                      />
                   }/>}
             {elocationItemModal &&  <AddToCartModal
                 cartHeight={'100%'}
@@ -105,10 +85,6 @@ function ElocationScreen({navigation}) {
             }} >
                 <ListFooter onPress={() => navigation.navigate(routes.NEW_LOCATION)}/>
             </View>}
-            <OrderHelpModal
-                selectedSource={{uri: selectedSource}}
-                closeModal={() => setHelpModalVisible(false)}
-                visible={helpModalVisible}/>
             </>
     );
 }

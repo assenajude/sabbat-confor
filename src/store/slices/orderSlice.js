@@ -21,7 +21,7 @@ const orderSlice = createSlice({
         articleRefreshCompter: 0,
         locationRefreshCompter: 0,
         serviceRefreshCompter: 0,
-        selectedOrder: {}
+        selectedOrder: {},
     },
     reducers: {
         orderRequested: (state, action) => {

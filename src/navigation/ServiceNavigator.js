@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {createStackNavigator} from "@react-navigation/stack";
+import {createStackNavigator, TransitionPresets} from "@react-navigation/stack";
 import {Keyboard} from 'react-native'
 import EserviceScreen from "../screens/EserviceScreen";
 import colors from "../utilities/colors";
@@ -51,6 +51,7 @@ function ServiceNavigator({navigation}) {
             headerStyle: {backgroundColor: colors.rougeBordeau},
             headerTintColor: colors.blanc,
             headerTitleAlign: 'center',
+            ...TransitionPresets.SlideFromRightIOS,
             headerRight: () => <CartIconRight cartLenght={itemsLenght} getToCartScreen={() => navigation.navigate('AccueilNavigator', {screen: routes.CART})} />
         }}>
             <ServiceStackNav.Screen name='ServiceScreen' component={EserviceScreen} options={{
@@ -63,6 +64,7 @@ function ServiceNavigator({navigation}) {
                                               spaceModalVisible={serviceModalVisible}  showSpaceModal={()=>setServiceModalVisible(true)}/>,
                 headerLeft: () =>
                     <AppAvatar
+                        showNottif={true}
                         user={user}
                         onPress={() =>navigation.openDrawer()}/>
             }}/>

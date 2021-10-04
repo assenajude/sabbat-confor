@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ScrollView, View,StyleSheet, Image, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
+import {ScrollView, View,StyleSheet, Image, TouchableWithoutFeedback} from "react-native";
 import {useDispatch, useSelector} from "react-redux";
 import colors from "../utilities/colors";
 import AppText from "../components/AppText";
@@ -92,14 +92,14 @@ function ArticleDetailScreen({route, navigation}) {
             <View style={{margin: 5}}>
             <Image source={{uri: selectedImage}} style={styles.imageStyle}/>
             </View>
-            <ScrollView horizontal>
-                <View style={styles.imagesContainer}>
+            <ScrollView contentContainerStyle={{
+                borderWidth: 1
+            }} horizontal>
                 {item.imagesArticle.map((image, index) => <View key={index.toString()} style={{margin: 10}}>
                     <TouchableWithoutFeedback onPress={() => handleChangeImage(image)}>
                     <Image source={{uri: image}} style={{height: 60, width: 60}} />
                     </TouchableWithoutFeedback>
                 </View>)}
-                </View>
             </ScrollView>
             <View style={{margin: 5}}>
                 <View style={{ marginTop: 5}}>
@@ -237,11 +237,6 @@ const styles = StyleSheet.create({
         height: 300,
         width: '100%',
         overflow: 'hidden'
-    },
-    imagesContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
     },
     rupture: {
         position: 'absolute',

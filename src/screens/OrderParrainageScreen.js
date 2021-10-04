@@ -1,9 +1,14 @@
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {StyleSheet,ScrollView, TextInput, TouchableOpacity, View} from "react-native";
 import AppText from "../components/AppText";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch, useSelector, useStore} from "react-redux";
 import usePlaceOrder from "../hooks/usePlaceOrder";
-import {getQuotiteEditShown, getSelectedParrain} from "../store/slices/parrainageSlice";
+import {
+    getQuotiteEditShown,
+    getSelectedParrain,
+    getUserParrainageCompte,
+    getUserParrains
+} from "../store/slices/parrainageSlice";
 import {getAddOrderParrain} from "../store/slices/orderSlice";
 import colors from "../utilities/colors";
 import {AntDesign} from "@expo/vector-icons";
@@ -11,12 +16,16 @@ import ParrainageHeader from "../components/parrainage/ParrainageHeader";
 import AppButton from "../components/AppButton";
 import routes from "../navigation/routes";
 import useAuth from "../hooks/useAuth";
+import AppActivityIndicator from "../components/AppActivityIndicator";
 
 function OrderParrainageScreen({navigation}) {
     const dispatch = useDispatch()
+    const store = useStore()
     const {getTotal, getPayementRate} = usePlaceOrder()
     const {formatPrice} = useAuth()
 
+    const user = useSelector(state => state.auth.user)
+    const loading = useSelector(state => state.entities.parrainage.loading)
     const listParrains = useSelector(state => {
         const parrains = state.entities.parrainage.userParrains
         const activeCompte = parrains.filter(parr => parr.active)
@@ -61,9 +70,17 @@ function OrderParrainageScreen({navigation}) {
 
     }
 
+    const getStarted = useCallback(async () => {
+        await dispatch(getUserParrains({userId: user.id}))
+    }, [])
+
+    useEffect(() => {
+        getStarted()
+    }, [])
 
     return (
         <>
+            <AppActivityIndicator visible={loading}/>
             <ScrollView>
                 <View style={{flexDirection: 'row', alignItems: 'center',
                     padding: 20}}>
@@ -128,7 +145,7 @@ function OrderParrainageScreen({navigation}) {
                         margin: 50
                     }}>
                         <AppButton
-                            width={200}
+                            width={300}
                             title='Continuer'
                             onPress={() => navigation.navigate(routes.ORDER)}/>
                     </View>}
@@ -139,7 +156,10 @@ function OrderParrainageScreen({navigation}) {
 
                 }}>
                     <AppText>Aucun parrain trouvé.</AppText>
-                    <AppButton width={200} style={{marginVertical: 50}} title='Ajouter' onPress={() => navigation.navigate('Parrainage', {screen: 'ListeParrainScreen'})}/>
+                    <AppButton
+                        style={{marginVertical: 50, width: 300}}
+                        title='Ajouter'
+                        onPress={() => navigation.navigate('Parrainage', {screen: 'ListeParrainScreen'})}/>
                 </View>}
             </ScrollView>
         </>

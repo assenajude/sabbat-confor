@@ -50,6 +50,7 @@ function PlanScreen({navigation}) {
         <>
             <AppActivityIndicator visible={loading}/>
             <AppItemPicker
+                style={{width: 150}}
                 onValueChange={val => setCurrentPayement(val)}
                 selectedValue={currentPayement}
                 label='Mode de payement: '

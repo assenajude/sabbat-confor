@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector, useStore} from "react-redux";
 import {View, ScrollView, StyleSheet, ToastAndroid} from 'react-native'
 import * as Yup from 'yup'
@@ -14,6 +14,7 @@ import {
 } from '../store/slices/userAdresseSlice';
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import AppItemPicker from "../components/AppItemPicker";
+import {getAllVilles} from "../store/slices/villeSlice";
 
 
 const adressValidSchema = Yup.object().shape({
@@ -36,6 +37,7 @@ function NewUserAdresseScreen({navigation, route}) {
     const isLoading = useSelector(state => state.entities.userAdresse.loading)
     const [pointsRelais, setPointsRelais] = useState(villes[0]?.PointRelais)
     const [relaisValue, setRelaisValue] = useState(pointsRelais[0])
+    const [loading, setLoading] = useState(false)
 
 
 
@@ -68,10 +70,11 @@ function NewUserAdresseScreen({navigation, route}) {
     }
 
     const handleChangeRelais = (relais) => {
-          setSelectedRelais(relais)
-          const currentRelais = listRelais.find(item => item.nom.toLowerCase() ===relais.toLowerCase())
-        setRelaisValue(currentRelais)
-
+        if(relais && listRelais.length>0) {
+            setSelectedRelais(relais)
+            const currentRelais = listRelais.find(item => item.nom.toLowerCase() ===relais.toLowerCase())
+            setRelaisValue(currentRelais)
+        }
     }
 
     const getExistAdressRelais = () => {
@@ -82,13 +85,20 @@ function NewUserAdresseScreen({navigation, route}) {
         }
     }
 
+    const getStated = useCallback(async () => {
+        setLoading(true)
+        await dispatch(getAllVilles())
+        setLoading(false)
+    }, [])
+
     useEffect(() => {
+        getStated()
         if(existingAdresse.PointRelai) getExistAdressRelais()
     }, [])
 
     return (
         <>
-            <AppActivityIndicator visible={isLoading}/>
+            <AppActivityIndicator visible={isLoading || loading}/>
         <ScrollView contentContainerStyle={{paddingBottom: 20}}>
         <View>
             <AppItemPicker
@@ -97,12 +107,24 @@ function NewUserAdresseScreen({navigation, route}) {
                 label='Ville: '
                 items={villes.map(item => item.nom)}
             />
-            <AppItemPicker
-                onValueChange={val => handleChangeRelais(val)}
-                selectedValue={selectedRelais}
-                label='Points Relais: '
-                items={pointsRelais.map(item => item.nom)}
-            />
+            <View style={{
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                {pointsRelais.length>0 && <AppItemPicker
+                    onValueChange={val => handleChangeRelais(val)}
+                    selectedValue={selectedRelais}
+                    label='Points Relais: '
+                    items={pointsRelais.map(item => item.nom)}
+                />}
+                {pointsRelais.length === 0 && <AppText
+                    style={{
+                        marginHorizontal: 10
+                    }}>
+                    Désolé, nous n'avons aucune réprensation dans cette ville.
+                </AppText>}
+            </View>
+
             <View style={styles.infoPerso}>
                 <AppText style={{backgroundColor: color.rougeBordeau, color: color.blanc}}>Infos perso</AppText>
                     <AppForm initialValues={{
@@ -119,7 +141,8 @@ function NewUserAdresseScreen({navigation, route}) {
                             name='email'
                             keyboardType='email-address'/>
                         <AppFormField title='Autres Adresse' name='adresse'/>
-                        <AppSubmitButton style={{marginTop: 40}} width={300} title='Ajouter'/>
+                        {pointsRelais.length> 0 && <AppSubmitButton
+                            style={{marginVertical: 40, alignSelf: 'center', width: 300}} title='Ajouter'/>}
                     </AppForm>
 
             </View>

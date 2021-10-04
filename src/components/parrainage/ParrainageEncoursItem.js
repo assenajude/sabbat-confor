@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
-import * as Progress from 'react-native-progress'
 import {Entypo} from '@expo/vector-icons';
 
 import ParrainageHeader from "./ParrainageHeader";
@@ -14,6 +13,7 @@ import AppLabelWithValue from "../AppLabelWithValue";
 import {getOrderParrainDetails} from "../../store/slices/parrainageSlice";
 import {useDispatch} from "react-redux";
 import AppButton from "../AppButton";
+import {ProgressBar} from "react-native-paper";
 
 function ParrainageEncoursItem({parrainUser,sponsorDetails,openSponsorDetails, ownerEmail,
                                    ownerUsername, parrainageOrders, getUserProfile,getOrderDetails,
@@ -26,9 +26,12 @@ function ParrainageEncoursItem({parrainUser,sponsorDetails,openSponsorDetails, o
     return (
         <View style={styles.container}>
             <View style={{alignItems: 'center', margin: 10}}>
-            {showProgress && <View>
+            {showProgress &&
+                <ProgressBar progress={orderProgress} color={colors.bleuFbi}/>
+          /*  <View>
             <Progress.Bar progress={orderProgress} style={{width: 200}}/>
-            </View>}
+            </View>*/
+            }
             </View>
             <View style={{
                 flexDirection: 'row',
@@ -79,6 +82,7 @@ function ParrainageEncoursItem({parrainUser,sponsorDetails,openSponsorDetails, o
                                 <AppLabelWithValue label='Commandé le' labelValue={formatDate(item.createdAt)}/>
                                 <AppLabelWithValue label='Echeance' labelValue={getOrderFactureEcheance(item) || 'Pas de facture'}/>
                                 <AppButton
+                                    style={{alignSelf: 'flex-start'}}
                                     onPress={() => getOrderDetails(item)}
                                     title='+ Details'/>
                             </View>}

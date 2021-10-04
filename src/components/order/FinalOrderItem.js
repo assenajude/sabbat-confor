@@ -31,6 +31,7 @@ function FinalOrderItem({header,label1,label1Value,changeLabel3, label2, label2V
                     <AppText style={{fontWeight: 'bold', fontSize: 15}}>{label3}</AppText>
                     <AppText>{label3Value}</AppText>
                     <AppButton
+                        height={40}
                         style={{
                             backgroundColor: colors.leger
                         }}

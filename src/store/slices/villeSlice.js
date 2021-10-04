@@ -24,7 +24,14 @@ const villeSlice = createSlice({
         villeAdded: (state, action) => {
             state.loading = false;
             state.error = null;
-            state.list.push(action.payload)
+            let newList = state.list
+            const addedIndex = newList.findIndex(item => item.id === action.payload.id)
+            if(addedIndex !== -1) {
+                newList[addedIndex] = action.payload
+            }else {
+                newList.push(action.payload)
+            }
+            state.list = newList
         },
         villeRequestFailed: (state, action) => {
             state.loading = false;
@@ -41,13 +48,20 @@ const villeSlice = createSlice({
         },
         resetUserVille: (state, action) => {
             state.userVille = {}
+        },
+        villeDeleted: (state, action) => {
+            state.loading = false
+            state.error = null
+            const newList = state.list.filter(item => item.id !== action.payload.villeId)
+            state.list = newList
         }
     }
 });
 
 export default villeSlice.reducer;
 
-const {villeAdded, villeReceived, villeRequested, villeRequestFailed, getLivraisonVille, resetUserVille} = villeSlice.actions
+const {villeAdded, villeReceived, villeRequested, villeRequestFailed,
+    getLivraisonVille, resetUserVille, villeDeleted} = villeSlice.actions
 
 
 const url = '/villes'
@@ -66,6 +80,16 @@ export const getAllVilles = () => apiRequest({
     method: 'get',
     onStart: villeRequested.type,
     onSuccess: villeReceived.type,
+    onError: villeRequestFailed.type
+
+})
+
+export const deleteOneVille = (data) => apiRequest({
+    url: url+'/deleteOne',
+    method: 'delete',
+    data,
+    onStart: villeRequested.type,
+    onSuccess: villeDeleted.type,
     onError: villeRequestFailed.type
 
 })

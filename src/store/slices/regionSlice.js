@@ -23,14 +23,27 @@ const regionSlice = createSlice({
             state.error = action.payload
         },
         regionAdded: (state, action) => {
-            state.list.push(action.payload)
+           state.loading = false
+            let newList = state.list
+            const addedIndex = newList.findIndex(item => item.id  === action.payload.id)
+            if(addedIndex !== -1) {
+                newList[addedIndex] = action.payload
+            }else{
+             newList.push(action.payload)
+            }
+            state.list = newList
         },
+        regionDeleted: (state, action)=> {
+           state.loading = false
+            const newList = state.list.filter(item => item.id !== action.payload.regionId)
+            state.list = newList
+        }
     }
 })
 
 export default regionSlice.reducer;
 
-const {regionReceived, regionRequested, regionRequestFailed, regionAdded} = regionSlice.actions
+const {regionReceived, regionRequested, regionRequestFailed, regionAdded, regionDeleted} = regionSlice.actions
 
 const url = '/regions'
 
@@ -48,5 +61,14 @@ export const getRegions = () => apiRequest({
     method: 'get',
     onStart:regionRequested.type,
     onSuccess: regionReceived.type,
+    onError: regionRequestFailed.type
+});
+
+export const deleteOneRegion = (data) => apiRequest({
+    url:url+'/deleteOne',
+    method: 'delete',
+    data,
+    onStart:regionRequested.type,
+    onSuccess: regionDeleted.type,
     onError: regionRequestFailed.type
 });

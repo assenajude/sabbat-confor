@@ -9,8 +9,4 @@ const start = () => {
         debug:__DEV__?true:false
     })
 }
-
-// const log = (error) => Sentry.captureException(new Error(error))
-
-
 export default {start}

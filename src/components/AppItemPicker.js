@@ -34,6 +34,6 @@ const styles = StyleSheet.create({
         width: '80%',
         alignSelf: 'center'
     },
-    picker:{width:120, maxWidth:200, height: 50}
+    picker:{width:180, maxWidth:200, height: 50}
 })
 export default AppItemPicker;

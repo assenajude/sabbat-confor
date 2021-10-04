@@ -19,13 +19,12 @@ function ConditionsModal({conditionModalVisible, dismissConditionModal}) {
                 </View>
             <ScrollView contentContainerStyle={{padding: 20, alignItems:'center'}} >
                <View>
-                   <AppText style={{fontWeight: 'bold', color: colors.bleuFbi}}>Conditions generales commandes à crédit</AppText>
-                   <AppText></AppText>
+                   <AppText style={{fontWeight: 'bold', color: colors.bleuFbi}}>Conditions d'éligibilité commandes à crédit</AppText>
                </View>
-                <View style={styles.itemStyle}>
-                    <AppText style={{fontWeight: 'bold', marginLeft: 10}}>NB:</AppText>
+                <View style={{alignItems: 'flex-start'}}>
+                    <AppText style={{fontWeight: 'bold'}}>NB:</AppText>
                     <View>
-                        <AppText> Pour reussir une commande à crédit, assurez-vous de completer votre profile utilisateur.
+                        <AppText> Pour reussir une commande à crédit, assurez-vous de completer votre profil utilisateur.
                             Editer votre compte utilisateur et ajouter toutes les informations demandées, une image, votre piece identité etc.
                             Ensuite utiliser l'une ou l'autre des conditions ci-dessous pour faire votre commande.
                         </AppText>
@@ -34,9 +33,9 @@ function ConditionsModal({conditionModalVisible, dismissConditionModal}) {
                 <View style={[styles.itemStyle, {marginTop: 20}]}>
                     <AppText style={{fontWeight: 'bold'}}> 1 -</AppText>
                         <View style={{alignItems: 'flex-start'}}>
-                            <AppText style={{fontWeight: 'bold'}}>Atteindre le seuil de liberté</AppText>
-                            <AppText> Le seuil de liberté est de 500 000 XOF, c'est le cumul de toutes vos commandes payées cash.
-                                Faites des commandes et payez cash afin d'attendre le seuil de liberté et vous serez desormais libre de faire les commandes et choisir le mode de payement "credit".</AppText>
+                            <AppText style={{fontWeight: 'bold'}}>Atteindre le seuil de liberté ou seuil de fidelité</AppText>
+                            <AppText> Le seuil de liberté est de 500 000 XOF, c'est le cumul de toutes vos commandes payées cash jusqu'à ce jour, date d'une nouvelle commande.
+                                Une fois le seuil de liberté atteint, vous êtes desormais libre de faire des commandes et choisir le mode de payement "credit" jusqu'à épuisement de votre seuil.</AppText>
                         </View>
                 </View>
                 <View style={[styles.itemStyle, {marginTop: 20}]}>
@@ -47,7 +46,7 @@ function ConditionsModal({conditionModalVisible, dismissConditionModal}) {
                             Même si vous n'êtes pas éligible par la condition 1, vous pouvez vous servir de la condition 2,
                             créer un compte de parrainage initial (aller dans le menu "parrainage" puis creer votre compte). Une fois le compte créé,
                             aller dans la liste de tous les comptes parrains puis ajouter ceux que vous desirez qu'ils soient vos parrains.
-                            Vous devez donc attendre leur reponse avant de les utiliser lors de vos commandes comme parrains.</AppText>
+                            Vous devez donc attendre leur reponse avant de les utiliser lors de vos prochaines commandes comme parrains.</AppText>
                     </View>
                 </View>
                 <View style={{alignSelf: 'flex-end', margin: 10}}>

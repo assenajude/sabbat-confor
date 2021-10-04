@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {ScrollView, View, StyleSheet,TouchableOpacity, TouchableWithoutFeedback} from "react-native";
+import {ScrollView, View, StyleSheet,TouchableOpacity, TouchableWithoutFeedback, Text} from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
 
 import colors from "../utilities/colors";
@@ -15,6 +15,7 @@ import useNotification from "../hooks/useNotification";
 import {getSaveEditInfo} from "../store/slices/userProfileSlice";
 import ScrollHeaderComponent from "../components/ScrollHeaderComponent";
 import useAuth from "../hooks/useAuth";
+import AppButton from "../components/AppButton";
 
 function HomeScreen({navigation}) {
     const dispatch = useDispatch()
@@ -44,14 +45,16 @@ function HomeScreen({navigation}) {
 
 
     const getToken = useCallback(async () => {
-        setPushLoading(true)
-        const token = await registerForPushNotificationsAsync()
-        setPushLoading(false)
-        const profileNotifToken = store.getState().profile.connectedUser.pushNotificationToken
-        const isTheSameToken =  profileNotifToken === token
-        if(isTheSameToken) return;
-        else if(Object.keys(user)>0) dispatch(getSaveEditInfo({userId: user.id, pushNotificationToken: token}))
-    }, [])
+        if(Object.keys(user).length>0) {
+            setPushLoading(true)
+            const token = await registerForPushNotificationsAsync()
+            setPushLoading(false)
+            const profileNotifToken = store.getState().profile.connectedUser.pushNotificationToken
+            const isTheSameToken =  profileNotifToken === token
+            if(isTheSameToken) return;
+            else dispatch(getSaveEditInfo({userId: user.id, pushNotificationToken: token}))
+        }
+    },[] )
 
 
     useEffect(() => {
@@ -72,6 +75,7 @@ function HomeScreen({navigation}) {
                 backgroundColor: colors.blanc
             }}
             stickyHeaderIndices={[0]}
+            showsHorizontalScrollIndicator={false}
         >
             <ScrollHeaderComponent/>
             <View style={styles.headerStyle}>
@@ -90,13 +94,14 @@ function HomeScreen({navigation}) {
                 position: 'absolute',
                 top: 230
             }}>
-            <View>
+                <Text style={styles.categorie}>Dans nos categories</Text>
                 <ScrollView
                     contentContainerStyle={{
-                        paddingHorizontal: 20
+                        paddingHorizontal: 10,
                     }}
+                    showsHorizontalScrollIndicator={false}
                     horizontal={true}>
-                    {getProductsByCategories().slice(0,10).map((item, index) =>
+                    {getProductsByCategories().slice(0,30).map((item, index) =>
                         <HomeCard
                             getProductLink={() => navigation.navigate(routes.ACCUEIL, {...item, headerTitle: item.Categorie.libelleCateg})}
                             getProductDetails={() => navigation.navigate(routes.ACCUEIL, {...item, headerTitle: item.Categorie.libelleCateg})}
@@ -113,43 +118,53 @@ function HomeScreen({navigation}) {
                     <AppText>Aucune categories trouvée.</AppText>
                 </View>}
             </View>
-            </View>
             <View style={styles.contentStyle}>
-                <AppText
-                    onPress={() => {
+                <AppButton
+                    height={40}
+                    onPress={() =>{
                         setIsHotSelected(true)
                         setIsAllSelected(false)
                     }}
-                    style={{
+                    uppercase={false}
+                    mode='text'
+                    labelStyle={{
                         fontWeight: isHotSelected?'bold':'normal',
                         color: isHotSelected?colors.bleuFbi :'#4e4e4e',
                         textDecorationLine: isHotSelected? 'none' : 'underline'
-                    }} >shap-shap</AppText>
-                <AppText
-                    onPress={() => {
+                    }}
+                    title='shap-shap'
+                />
+                <AppButton
+                    height={40}
+                    onPress={() =>{
                         setIsAllSelected(true)
                         setIsHotSelected(false)
                         navigation.navigate(routes.ACCUEIL, {all: true, headerTitle: 'Tous les produits'})
                     }}
-                    style={{
+                    uppercase={false}
+                    labelStyle={{
                         fontWeight: isAllSelected?'bold':'normal',
                         color: isAllSelected?colors.bleuFbi :'#4e4e4e',
                         textDecorationLine: isAllSelected? 'none' : 'underline'
-                    }}>Voir tout</AppText>
+                    }}
+                    mode='text'
+                    title='Voir tout'
+                />
             </View>
             <View style={{
                 marginVertical: 20
             }}>
                 {mainDatas.length>0 && <ScrollView
                     contentContainerStyle={{
-                        paddingHorizontal: 20
+                        paddingHorizontal: 10
                     }}
+                    showsHorizontalScrollIndicator={false}
                     horizontal={true}>
                     {mainDatas.map((item, index) =>
                         <HomeCard
                             getProductDetails={() => {
                                 dispatch(getSelectedOptions(item))
-                                navigation.navigate('AccueilNavigator',{screen:item.Categorie.typeCateg === 'article'?routes.ARTICLE_DETAIL : routes.LOCATION_DETAIL, params: item})
+                                navigation.navigate(item.Categorie.typeCateg === 'article'?routes.ARTICLE_DETAIL : routes.LOCATION_DETAIL, item)
                             }}
                             descripLineNumber={3}
                             showCategorie={false}
@@ -157,7 +172,15 @@ function HomeScreen({navigation}) {
                             item={item}/>
                     )}
                 </ScrollView>}
-                {mainDatas.length ===0 &&  <AppText>Aucun produit trouvé.</AppText>}
+                {mainDatas.length ===0 && <View>
+                <AppText>Aucun produit trouvé. Assurez-vous que vous avez une connexion internet puis actualiser</AppText>
+                    <AppButton
+                        iconName="refresh"
+                        style={{alignSelf: 'center'}}
+                        title='actualiser'
+                        onPress={() => getStarted()}
+                    />
+                </View>}
             </View>
             <View>
                 <View style={styles.infoCardContainer}>
@@ -165,7 +188,6 @@ function HomeScreen({navigation}) {
                     <View style={[styles.infoCard, {backgroundColor: 'orange'}]}>
                         <AppIconButton
                             iconColor={colors.bleuFbi}
-                            onPress={() => navigation.navigate(routes.ACCUEIL, {products: getBestSellerArticles(),headerTitle: 'Best seller'})}
                             buttonContainer={styles.infoCardIcon}
                             iconSize={24}
                             iconName='chevron-double-right'/>
@@ -177,7 +199,6 @@ function HomeScreen({navigation}) {
                     <View style={[styles.infoCard, {backgroundColor: 'green'}]}>
                         <AppIconButton
                             iconColor={colors.bleuFbi}
-                            onPress={() => navigation.navigate(routes.ACCUEIL, {products: getFlashPromo().currentFlash, headerTitle: 'Vente Flash du jour'})}
                             buttonContainer={styles.infoCardIcon}
                             iconSize={24}
                             iconName='chevron-double-right'/>
@@ -193,22 +214,19 @@ function HomeScreen({navigation}) {
                         <AppIconButton
                             iconSize={24}
                             iconColor={colors.bleuFbi}
-                            onPress={() => navigation.navigate(routes.ACCUEIL,
-                                {products: getFlashPromo().otherFlash, headerTitle: 'Vente Flash à venir'})}
                             buttonContainer={styles.infoCardIcon}
                             iconName='chevron-double-right'/>
                         <AppText style={styles.infoText}>Croire en l'avenir!</AppText>
                         <AppText style={styles.secondTextInfo}>Les ventes flash à venir.</AppText>
                     </View>
                     </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate('OtherMain',{screen: routes.CATEGORIE})}>
+                    <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.CATEGORIE)}>
                     <View style={[styles.infoCard, {backgroundColor: 'orange'}]}>
                         <AppText style={styles.infoText}>Qui dit mieux?</AppText>
                         <AppText style={styles.secondTextInfo}>Consulter toutes les categories</AppText>
                         <AppIconButton
                             iconColor={colors.bleuFbi}
                             iconSize={24}
-                            onPress={() => navigation.navigate('OtherMain',{screen: routes.CATEGORIE})}
                             buttonContainer={styles.infoCardIcon}
                             iconName='chevron-double-right'/>
                     </View>
@@ -222,6 +240,10 @@ function HomeScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
+    categorie: {
+        color: colors.blanc,
+        marginLeft: 20
+    },
     categorieList: {
       position: 'absolute',
         top: 100
@@ -267,7 +289,7 @@ const styles = StyleSheet.create({
         transform: [{ rotate: "270deg" }]
     },
     infoCard: {
-        minHeight: 120,
+        minHeight: 150,
         minWidth: 120,
         maxHeight: 180,
         maxWidth: 170,
@@ -318,6 +340,13 @@ const styles = StyleSheet.create({
         color: colors.blanc,
         fontSize: 15,
         marginTop: -10
+    },
+    categorieLabel:{
+        fontSize: 15,
+        backgroundColor: colors.blanc,
+        position: 'absolute',
+        left:10,
+        bottom:0
     }
 })
 export default HomeScreen;

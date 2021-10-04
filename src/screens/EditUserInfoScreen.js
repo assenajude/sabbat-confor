@@ -71,7 +71,7 @@ function EditUserInfoScreen({navigation}) {
                 <AppFormField title='Telephone' name='phone'/>
                 <AppFormField title='Adresse' name='adresse'/>
                 <AppFormField title='Profession' name='profession'/>
-                <AppSubmitButton title='Valider' showLoading={isLoading}/>
+                <AppSubmitButton title='Valider' style={{width: 300, marginVertical: 30}}/>
             </AppForm>
         </ScrollView>
             </>

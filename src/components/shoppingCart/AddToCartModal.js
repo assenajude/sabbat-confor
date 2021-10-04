@@ -28,9 +28,11 @@ function AddToCartModal({source, designation, itemModalVisible,goToHomeScreen,go
                 </View>
                 <View style={styles.buttonContainer}>
                     <AppButton
+                        height={40}
                         title="Continuer"
                         onPress={goToHomeScreen}/>
                     <AppButton
+                        height={40}
                         title='Commander'
                         onPress={goToShoppingCart}/>
                 </View>
@@ -68,7 +70,8 @@ const styles  = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-around'
+        justifyContent: 'space-around',
+        marginVertical: 20
     },
     textStyle : {
         position: 'absolute',

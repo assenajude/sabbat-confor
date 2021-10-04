@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "153219879188-fb68p34sfpviru7jgm45b0nokath0lnk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sabbat.confort",
+            "certificate_hash": "5834d0e8819ac824b47929a5c3c6791ba43baccb"
+          }
+        },
+        {
           "client_id": "153219879188-r66so921immvtngkhib81qu7ee7da78c.apps.googleusercontent.com",
           "client_type": 3
         }

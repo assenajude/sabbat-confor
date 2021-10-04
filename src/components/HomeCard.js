@@ -1,10 +1,9 @@
 import React, {useState}  from 'react';
-import {Image, View, StyleSheet, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
+import {Image, View, StyleSheet, TouchableWithoutFeedback, Alert} from "react-native";
 import LottieView from 'lottie-react-native'
 import AppText from "./AppText";
 import AppIconButton from "./AppIconButton";
 import colors from "../utilities/colors";
-import {getToggleFavorite} from "../store/slices/userFavoriteSlice";
 import useAuth from "../hooks/useAuth";
 import {useDispatch, useSelector} from "react-redux";
 import useItemReductionPercent from "../hooks/useItemReductionPercent";
@@ -14,6 +13,8 @@ import routes from "../navigation/routes";
 import useAddToCart from "../hooks/useAddToCart";
 import {useNavigation} from '@react-navigation/native'
 import AddToCartButton from "./shoppingCart/AddToCartButton";
+import AppActivityIndicator from "./AppActivityIndicator";
+import useMainFeatures from "../hooks/useMainFeatures";
 
 function HomeCard({item, showCategorie=true, descripLineNumber=2,
                        getProductLink, productLength,
@@ -22,12 +23,15 @@ function HomeCard({item, showCategorie=true, descripLineNumber=2,
     const navigation = useNavigation()
     const {getReductionPercent} = useItemReductionPercent()
     const {addItemToCart} = useAddToCart()
+    const {toggleFavorite} = useMainFeatures()
     const dispatch = useDispatch()
     const articleFavorites = useSelector(state => state.entities.userFavorite.articleFavoris)
     const locationFavorites = useSelector(state => state.entities.userFavorite.locationFavoris)
+    const user = useSelector(state => state.auth.user)
 
     const [addToCartModalVisible, setAddToCartModalVisible] = useState(false)
     const [imageLoading, setImageLoading] = useState(true)
+    const [favVisible, setFavVisible] = useState(false)
 
     const getItemFavoriteTab = (type) => {
         if(type === 'article')return articleFavorites
@@ -46,8 +50,31 @@ function HomeCard({item, showCategorie=true, descripLineNumber=2,
 
     const imageSource = {uri:item.Categorie.typeCateg === 'article'? item?.imagesArticle[0] : item?.imagesLocation[0]}
 
+
+    const handleToggleFavorite = async () => {
+        const isUser = Object.keys(user).length>0
+        if(!isUser) {
+           return  Alert.alert(
+                "Alert",
+                "Vous devez vous connecter pour ajouter le produit à vos favoris.",
+                [
+                    {
+                        text: "Plutard",
+                        onPress: () => {return;},
+                        style: "cancel"
+                    },
+                    { text: "connexion", onPress: () => {navigation.navigate(routes.LOGIN)} }
+                ]
+            );
+        }
+        setFavVisible(true)
+        await toggleFavorite(item)
+        setFavVisible(false)
+    }
+
     return (
         <>
+            <AppActivityIndicator visible={favVisible}/>
         <View  style={styles.headerImageContainer}>
         <TouchableWithoutFeedback onPress={getProductDetails}>
         <View>
@@ -110,8 +137,8 @@ function HomeCard({item, showCategorie=true, descripLineNumber=2,
             </View>
             {!showCategorie && <AppIconButton
                 iconColor={colors.dark}
-                iconSize={24}
-                onPress={() => dispatch(getToggleFavorite(item))}
+                iconSize={30}
+                onPress={handleToggleFavorite}
                 buttonContainer={styles.favIcon}
                 iconName={getItemFavoriteTab(item.Categorie.typeCateg).some(article => article.id === item.id)?'heart':'heart-outline'}
             />}
@@ -164,7 +191,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden'
     },
     headerImageContainer: {
-        marginHorizontal: 10,
+        marginHorizontal: 5,
         height: "auto",
         width: 240,
         alignItems: 'center',
@@ -183,6 +210,7 @@ const styles = StyleSheet.create({
     imageSecondContainer: {
         height:'auto',
         width: 240,
+        minWidth: 200,
         paddingBottom:10,
         alignItems: 'flex-start',
         backgroundColor: colors.blanc,

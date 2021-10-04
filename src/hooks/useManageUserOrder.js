@@ -7,7 +7,7 @@ import {
 } from "../store/slices/orderSlice";
 import useCreateOrderContrat from "./useCreateOrderContrat";
 import {getTranchePayed} from "../store/slices/trancheSlice";
-import {getFactureUpdated} from "../store/slices/factureSlice";
+import {getFacturesByUser, getFactureUpdated} from "../store/slices/factureSlice";
 import dayjs from "dayjs";
 
 let useManageUserOder;
@@ -97,6 +97,7 @@ export default useManageUserOder = () => {
             return alert('Impossible de payer la tranche.Veuillez reessayer plutard')
         } else {
             if(tranche.validation){
+                dispatch(getFacturesByUser())
                 return alert("La tranche a été validée")
             }
             const factureData = {

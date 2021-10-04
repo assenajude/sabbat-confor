@@ -12,7 +12,7 @@ function AppShoppingCart({onPress}) {
             <IconButton
                 color={colors.blanc}
                 icon="cart"
-                size={30}
+                size={24}
                 onPress={onPress}
             />
             <Badge

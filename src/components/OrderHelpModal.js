@@ -37,27 +37,13 @@ function OrderHelpModal({visible, closeModal, selectedSource}) {
                         </View>
                     </View>
                     <AppIconButton
-                        iconSize={40}
-                        buttonContainer={{
-                            position: 'absolute',
-                            bottom: 5,
-                            right: 5,
-                            marginHorizontal: 10,
-                            marginVertical: 10
-                        }}
+                        buttonContainer={styles.eye}
                         iconColor={colors.bleuFbi}
                         iconName='eye-outline'
                         onPress={closeModal}/>
                 <AppIconButton
                     onPress={closeModal}
-                    buttonContainer={{
-                        position: 'absolute',
-                        right: 10,
-                        top: 10,
-                        marginRight: 15,
-                        marginTop: 10
-                    }}
-                    iconSize={40}
+                    buttonContainer={styles.close}
                     iconColor={colors.rougeBordeau}
                     iconName='close'
                 />
@@ -84,6 +70,20 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 10,
         bottom: 50
+    },
+    eye: {
+        position: 'absolute',
+        bottom: 5,
+        right: 5,
+        marginHorizontal: 10,
+        marginVertical: 10
+    },
+    close: {
+        position: 'absolute',
+        right: 10,
+        top: 10,
+        marginRight: 15,
+        marginTop: 10
     }
 })
 export default OrderHelpModal;

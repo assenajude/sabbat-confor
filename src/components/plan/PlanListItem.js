@@ -46,12 +46,15 @@ function PlanListItem({planImage, imageStyle, imageDispo, label, description, ge
               <AppButton
                   title='+ Details' onPress={getPlanDetail}/>
                   <AppIconButton
+                      iconColor={colors.blanc}
                       onPress={editPlan}
-                      iconName='circle-edit-outline' buttonContainer={{
+                      iconName='circle-edit-outline'
+                      buttonContainer={{
                       backgroundColor: colors.bleuFbi,
                       marginHorizontal: 20
                   }}/>
                   <AppIconButton
+                      iconColor={colors.blanc}
                       iconName='delete-forever'
                       buttonContainer={{
                           backgroundColor: colors.rougeBordeau,

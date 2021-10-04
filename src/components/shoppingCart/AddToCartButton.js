@@ -1,17 +1,16 @@
 import React from 'react';
-import {Button} from "react-native-paper";
 import colors from "../../utilities/colors";
+import AppButton from "../AppButton";
 
 function AddToCartButton({onPress, label,style}) {
     return (
-        <Button
-            style={style}
-            color={colors.rougeBordeau}
-            mode='contained'
+        <AppButton
+            height={40}
+            style={[{width: 200, backgroundColor: colors.rougeBordeau}, style]}
+            title={label}
             onPress={onPress}
-            icon='cart'>
-            {label}
-        </Button>
+            iconName='cart'
+        />
     );
 }
 

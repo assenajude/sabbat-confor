@@ -120,6 +120,7 @@ function UserParamScreen({navigation}) {
                            name='newPassConfirm'
                            title='Confirmez le nouveau passe'/>
                            <AppSubmitButton
+                               style={{alignSelf: 'center', marginVertical: 40, width: 300}}
                                title='Valider'
                            />
                    </AppForm>
@@ -134,11 +135,10 @@ function UserParamScreen({navigation}) {
                         {allUsers.map((user,index) =>
                             <View key={index.toString()}>
                                 <ParrainageHeader
+                                    parrainUser={user}
                                     getUserProfile={() => dispatch(getSelectedUserDetails(user))}
                                     ownerUsername={user.username}
                                     ownerEmail={user.email}
-                                    ownerUserAvatar={user.avatar}
-                                    avatarUrl={{uri: user.avatar}}
                                 />
                                 {user.showDetails &&
                                 <View style={{
@@ -157,6 +157,7 @@ function UserParamScreen({navigation}) {
                                         labelValue={user.email}
                                         label='Email: '/>
                                         <AppButton
+                                            style={{alignSelf: 'flex-start', marginVertical: 20, marginLeft: 10}}
                                             title='Reset Password'
                                             onPress={() => handleResetPassWord(user)}
                                         />

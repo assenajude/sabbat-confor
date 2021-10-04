@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {createStackNavigator} from "@react-navigation/stack";
+import {createStackNavigator, TransitionPresets} from "@react-navigation/stack";
 import {Keyboard} from 'react-native'
 import ElocationScreen from "../screens/ElocationScreen";
 import colors from "../utilities/colors";
@@ -121,6 +121,7 @@ function LocationNavigator({navigation}) {
             headerStyle: {backgroundColor: colors.rougeBordeau},
             headerTintColor: colors.blanc,
             headerTitleAlign: 'center',
+            ...TransitionPresets.SlideFromRightIOS
         }}>
             <LocationStackNav.Screen name='LocationScreen' component={ElocationScreen} options={{
                 headerLeft: () =>

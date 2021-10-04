@@ -6,9 +6,10 @@ import AppText from "../AppText";
 import AppButton from "../AppButton";
 
 function OrderSuccessModal({newOrder, goHome, goToOrder, orderSuccessVisible}) {
+    if(!orderSuccessVisible) return null;
 
     return (
-        <Modal visible={orderSuccessVisible} transparent>
+        <>
             <View style={styles.container}>
             </View>
             <View style={styles.content}>
@@ -46,7 +47,7 @@ function OrderSuccessModal({newOrder, goHome, goToOrder, orderSuccessVisible}) {
                 </View>
             </View>
 
-        </Modal>
+        </>
     );
 }
 
@@ -55,15 +56,19 @@ const styles = StyleSheet.create({
         height: '100%',
         width: '100%',
         backgroundColor: colors.dark,
-        opacity: 0.3
+        opacity: 0.3,
+        position: 'absolute',
+        zIndex: 5
     },
     content: {
-        position :'absolute',
-        top: 100,
+        position: 'absolute',
+        alignSelf: 'center',
         height: 'auto',
         width: '100%',
         backgroundColor: colors.blanc,
-        paddingBottom: 10
+        paddingBottom: 20,
+        top: '30%',
+        zIndex: 10
     }
 })
 

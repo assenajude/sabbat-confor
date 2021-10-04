@@ -141,7 +141,11 @@ function NewArticleScreen({route, navigation}) {
                         <AppFormSwitch name='flashPromo' title='cet article est en promo?'/>
                         <AppFormTimePicker label='Debut flash promo' name='debutPromo'/>
                         <AppFormTimePicker label='Fin flash promo' name='finPromo'/>
-                        <AppSubmitButton  title='Ajouter'/>
+                        <AppSubmitButton
+                            style={{
+                                marginVertical: 40
+                            }}
+                            title='Ajouter'/>
                     </AppForm>
         </ScrollView>
       </>

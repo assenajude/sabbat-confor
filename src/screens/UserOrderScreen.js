@@ -71,8 +71,10 @@ function UserOrderScreen({navigation}) {
             }}>
                 <AppText>Vous n'avez aucune demande en cours..</AppText>
                 <AppButton
-                    textStyle={{fontSize: 15}}
-                    width={200}
+                    style={{
+                        marginVertical: 20,
+                        width: 300
+                    }}
                     title='Commander maintenant' onPress={() => navigation.navigate('E-commerce')}/>
             </View>}
        </>

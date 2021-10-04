@@ -1,5 +1,5 @@
 import React from 'react';
-import {View,Image,Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View,Image,StyleSheet, TouchableOpacity} from 'react-native';
 import {AntDesign} from '@expo/vector-icons'
 
 import Color from '../../utilities/colors'
@@ -18,7 +18,7 @@ function CartItem({source, designation,icon=false, activeDecrement,deleteItem,ca
     return (
         <View style={styles.mainContainer}>
             <View style={styles.itemContainer}>
-                <View style={styles.imageContainer}>
+                <View>
                     <TouchableOpacity onPress={showCartItem}>
                     <Image style={styles.imageStyle} source={source}/>
                     <View style={{width: 100}}>
@@ -31,8 +31,8 @@ function CartItem({source, designation,icon=false, activeDecrement,deleteItem,ca
                     </View>
                 </View>
                 <View style={styles.secondContainer}>
-               {price && <AppText style={{fontSize: 15, marginLeft: 20}}>{formatPrice(itemPrice)}</AppText>}
-                    {quantite && <CartItemQuantite disabledDecrement={disabledDecrement} disabledIncrement={disabledIncrement} minusActive={activeDecrement} plusActive={activeIncrement} quantite={itemQuantite} decrementQuantite={quantityDecrement} incrementQuantite={quantityIncrement} style={{marginRight: 15, marginLeft: 15}}/>}
+               {price && <AppText style={{fontSize: 15}}>{formatPrice(itemPrice)}</AppText>}
+                    {quantite && <CartItemQuantite disabledDecrement={disabledDecrement} disabledIncrement={disabledIncrement} minusActive={activeDecrement} plusActive={activeIncrement} quantite={itemQuantite} decrementQuantite={quantityDecrement} incrementQuantite={quantityIncrement}/>}
                 {montant && <AppText style={{fontSize: 15}}>{formatPrice(itemAmount)}</AppText>}
 
                     {min && <AppText>{formatPrice(montantMin)}</AppText>}
@@ -52,7 +52,11 @@ function CartItem({source, designation,icon=false, activeDecrement,deleteItem,ca
                 <AppText style={{color: Color.rougeBordeau}}>Rupture de stock</AppText>
             </View>}
             {notInStock && <View style={styles.deleteNotInStock}>
-                <AppButton iconColor={Color.blanc} iconName='delete' title='supprimer' iconSize={24}/>
+                <AppButton
+                    style={{backgroundColor: Color.rougeBordeau}}
+                    onPress={deleteItem}
+                    iconName='delete'
+                    title='supprimer'/>
             </View>}
         </View>
     );
@@ -69,7 +73,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         marginHorizontal: 10
 
     },
@@ -83,8 +87,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     imageStyle: {
-        height: 70,
-        width: 70
+        height: 60,
+        width: 60
     },
     notInStock: {
         position: 'absolute',

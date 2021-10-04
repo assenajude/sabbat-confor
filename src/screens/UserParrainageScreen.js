@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View, StyleSheet, ScrollView} from "react-native";
 import {useDispatch, useSelector, useStore} from "react-redux";
 import ParrainageEncoursItem from "../components/parrainage/ParrainageEncoursItem";
-import {getSponsorDetails} from "../store/slices/parrainageSlice";
+import {getPopulateParrainsOrders, getSponsorDetails, getUserParrains} from "../store/slices/parrainageSlice";
 import routes from "../navigation/routes";
 import useOrderInfos from "../hooks/useOrderInfos";
 import AppText from "../components/AppText";
@@ -20,6 +20,7 @@ function UserParrainageScreen({navigation}) {
     const store = useStore()
 
     const loading = useSelector(state => state.entities.order.loading)
+    const parrainageLoading = useSelector(state => state.entities.parrainage.loading)
     const userActiveParrainage = useSelector(state => {
         const filleuls = state.entities.parrainage.userFilleuls
         const inSponsoringComptes = state.entities.parrainage.inSponsoringState
@@ -49,7 +50,7 @@ function UserParrainageScreen({navigation}) {
 
     return (
         <>
-            <AppActivityIndicator visible={loading}/>
+            <AppActivityIndicator visible={loading || parrainageLoading}/>
         <ScrollView contentContainerStyle={{
             paddingVertical: 30,
             paddingBottom: 60

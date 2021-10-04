@@ -34,6 +34,10 @@ function CategorieItem({source,libelle,firstPrice, secondPrice,editCategorie,
                             source={require('../../assets/animations/image-loading')}/>
                     </View>}
             </View>
+            <View style={{
+                backgroundColor: colors.blanc,
+                marginHorizontal: 20
+            }}>
             <View style={styles.infoContainer}>
                 <AppText style={{fontWeight: 'bold'}}>{libelle}</AppText>
                 <View style={{flexDirection: 'row',alignItems: 'center'}}>
@@ -47,12 +51,14 @@ function CategorieItem({source,libelle,firstPrice, secondPrice,editCategorie,
                     </View>}
                 </View>
                 <AppText lineNumber={2}>{description}</AppText>
+            </View>
                 <AppText>({totalProduct || 0})</AppText>
             </View>
             {userRoleAdmin() && <View
                 style={{
                     flexDirection: 'row',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
                 <AppIconButton
                     iconName='delete-forever'
@@ -88,17 +94,13 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         paddingBottom: 10,
         borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
         alignSelf: 'center',
         backgroundColor: colors.leger
     },
     infoContainer: {
         backgroundColor: colors.blanc,
-        marginHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center'
+        minWidth: 250,
+        alignItems: 'flex-start'
     },
     imageLoading: {
         height: 100,

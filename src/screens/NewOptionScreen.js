@@ -60,7 +60,7 @@ function NewOptionScreen({route}) {
                 <AppFormField title='Quantite' name='quantite'/>
                 <AppFormField title='Prix' name='prix'/>
 
-                <AppSubmitButton title='Ajouter'/>
+                <AppSubmitButton style={{width: 300, marginVertical: 40}} title='Ajouter'/>
             </AppForm>
             </View>
         </ScrollView>

@@ -17,7 +17,8 @@ function CartListFooter({totalAmount, getOrder, buttonIsDisabled, readyToGo}) {
                 <AppButton
                     style={{
                     marginVertical: 50,
-                    alignSelf: 'center'
+                    alignSelf: 'center',
+                        width: 300
                 }}
                     disableButton={buttonIsDisabled}
                     onPress={getOrder}

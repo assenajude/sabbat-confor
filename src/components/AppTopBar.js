@@ -79,7 +79,6 @@ function AppTopBar({style, leaveInput, changeSearchValue, searchValue, handleSea
                            <AppIconButton
                                iconColor={Color.rougeBordeau}
                                onPress={closeSpaceModal}
-                               iconSize={40}
                                buttonContainer={styles.closeButton}
                                iconName='close'/>
                        </View>
@@ -88,13 +87,15 @@ function AppTopBar({style, leaveInput, changeSearchValue, searchValue, handleSea
                    </Modal>}
                </View>
             </View>}
-            {searching &&<View style={[styles.searchContainer, style]}>
+            {searching &&
+            <View style={[styles.searchContainer, style]}>
             <TextInput style={styles.inputStyle} onFocus={startingSearch}  onBlur={leaveInput} value={searchValue} onChangeText={changeSearchValue} placeholder='chercher ici...'
                        onSubmitEditing={handleSearch} />
                 <TouchableOpacity onPress={handleSearch}>
                 <EvilIcons name='search' size={24} color='black'/>
                 </TouchableOpacity>
-            </View>}
+            </View>
+            }
             </>
     );
 }

@@ -16,6 +16,7 @@ import routes from "../navigation/routes";
 import AppLinkIcon from "../components/AppLinkIcon";
 import {getAllUsers} from "../store/slices/authSlice";
 import AppButton from "../components/AppButton";
+import AppFundInfo from "../components/AppFundInfo";
 
 function CompteScreen({navigation, route}) {
     const selectedParams = route.params
@@ -30,6 +31,7 @@ function CompteScreen({navigation, route}) {
     const [pieceVersoLoading, setPieceVersoLoading] = useState(true)
     const [showInfos, setShowInfos] = useState(false)
     const [showParams, setShowParams] = useState(false)
+    const [showPieces, setShowPieces] = useState(false)
 
     const getUserInfo = useCallback(async () => {
         await dispatch(getConnectedUserData())
@@ -52,22 +54,51 @@ function CompteScreen({navigation, route}) {
     return (
         <>
          <AppActivityIndicator visible={isLoading}/>
-         <ScrollView
-             contentContainerStyle={{
-                 paddingBottom: 50
-             }}>
-        <View>
-            <View style={styles.imageContainer}>
+         <ScrollView contentContainerStyle={styles.container}>
+            <View>
                 <AppAvatar
-                    imageSize={100}
+                    otherContainerStyle={styles.avatarContainer}
+                    imageSize={150}
                     showNottif={false}
-                    otherContainerStyle={{
-                        alignItems: 'center'
-                    }}
                     showInfo={true}
                     user={selectedUser}
                 />
-                <View style={styles.pieceContainer}>
+
+                    <View style={styles.funds}>
+                        <AppFundInfo
+                            value={selectedUser.cashback}
+                            label='Cash back'
+                        />
+
+                        <AppFundInfo
+                            value={selectedUser.fidelitySeuil}
+                            label='Seuil de fidélité'
+                        />
+                    </View>
+                {allowEdit &&
+                <AppIconButton
+                    onPress={() => navigation.navigate('EditUserImagesScreen')}
+                    iconSize={30}
+                    buttonContainer={styles.cameraStyle}
+                    iconName='camera' iconColor='black'/>}
+            </View>
+            <View style={{
+                borderTopWidth: 1,
+                marginTop: 20
+            }}>
+                <View style={{
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                    backgroundColor: colors.rougeBordeau
+                }}>
+                    <AppText style={{color: colors.blanc}}>Infos complementaires</AppText>
+                </View>
+                <AppLinkIcon
+                    containerStyle={{marginVertical: 20}}
+                    title="Pièces d'identité"
+                    onPress={() => setShowPieces(!showPieces)}
+                />
+                {showPieces && <View style={styles.pieceContainer}>
                     <View style={styles.pieceImageStyle}>
                         {!selectedUser.pieceIdentite && <AppText style={{fontSize: 15}}>pièce recto</AppText>}
                         {selectedUser.pieceIdentite && <View style={{
@@ -79,17 +110,16 @@ function CompteScreen({navigation, route}) {
                                 resizeMode='contain'
                                 style={{height: 120, width: 160, borderRadius: 20}}
                                 source={{uri: selectedUser.pieceIdentite[0]}}/>
-                                {pieceRectoLoading && <View style={styles.loadingContainer}>
-                                    <LottieView
-                                        loop={true}
-                                        autoPlay={true}
-                                        style={styles.imageLoading}
-                                        source={require('../assets/animations/image-loading')}/>
-                                </View>}
+                            {pieceRectoLoading && <View style={styles.loadingContainer}>
+                                <LottieView
+                                    loop={true}
+                                    autoPlay={true}
+                                    style={styles.imageLoading}
+                                    source={require('../assets/animations/image-loading')}/>
+                            </View>}
 
                         </View>
-                    }
-
+                        }
                     </View>
                     <View style={styles.pieceImageStyle}>
                         {!selectedUser.pieceIdentite && <AppText style={{fontSize: 15}}>pièce verso</AppText>}
@@ -115,41 +145,15 @@ function CompteScreen({navigation, route}) {
                         }
 
                     </View>
-                </View>
-                {allowEdit &&
-                <AppIconButton
-                    onPress={() => navigation.navigate('EditUserImagesScreen')}
-                    iconSize={30}
-                    buttonContainer={styles.cameraStyle}
-                    iconName='camera' iconColor='black'/>}
-            </View>
-            <View style={{
-                borderTopWidth: 1,
-                marginTop: 20
-            }}>
-                <View style={{
-                    alignSelf: 'center',
-                    marginBottom: 20,
-                    backgroundColor: colors.rougeBordeau
-                }}>
-                    <AppText style={{color: colors.blanc}}>Infos complementaires</AppText>
-                </View>
+                </View>}
                 <View>
                     <AppLinkIcon
                         details={showInfos}
-                        title='Informations personnelles'
+                        title='Autres informations'
                         onPress={() => setShowInfos(!showInfos)}
                     />
                    {showInfos &&
                    <View>
-                  {allowEdit && <View style={{alignSelf: 'flex-end'}}>
-                    <AppButton
-                        style={{marginRight: 10}}
-                        onPress={() => navigation.navigate('EditUserInfoScreen')}
-                        title='Edit infos' iconSize={24}
-                        iconName='account-edit'
-                    />
-                </View>}
                     <AppLabelWithContent label="Nom" content={selectedUser.nom}/>
                     <AppLabelWithContent label="Prenoms" content={selectedUser.prenom}/>
                     <AppLabelWithContent label="Nom d'utilisateur" content={selectedUser.username}/>
@@ -157,6 +161,14 @@ function CompteScreen({navigation, route}) {
                     <AppLabelWithContent label="Adresse mail" content={selectedUser.email}/>
                     <AppLabelWithContent label="Situation géographique" content={selectedUser.adresse}/>
                     <AppLabelWithContent label="Profession" content={selectedUser.profession} showSeparator={false}/>
+                       {allowEdit && <View style={{alignSelf: 'flex-end'}}>
+                           <AppButton
+                               style={{marginRight: 10, marginVertical: 30}}
+                               onPress={() => navigation.navigate('EditUserInfoScreen')}
+                               title='Edit infos' iconSize={24}
+                               iconName='account-edit'
+                           />
+                       </View>}
                 </View>}
             </View>
             </View>
@@ -178,19 +190,29 @@ function CompteScreen({navigation, route}) {
                         content='Gerez vos parametres'/>
                 </View>}
             </View>
-        </View>
          </ScrollView>
         </>
     );
 }
 
 const styles = StyleSheet.create({
+    avatarContainer: {
+        marginVertical: 20,
+        alignItems: 'center'
+    },
+    funds: {
+      alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+    container: {
+      paddingBottom: 50
+    },
     pieceContainer: {
-        position: 'absolute',
-        bottom: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginBottom: 20
     },
     buttonStyle: {
         alignSelf: 'flex-end',
@@ -210,28 +232,12 @@ const styles = StyleSheet.create({
         margin: 10,
         marginLeft: 10
     },
-    imageContainer: {
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: 350,
-        backgroundColor: colors.lightGrey,
-        width:'100%',
-        paddingVertical:20
-    },
-    avatarContainer: {
-        position: 'absolute',
-        top: 20,
-        left: 50,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
     cameraStyle: {
         position: 'absolute',
-        right: 20,
-        top: 20,
-        marginRight: 20,
-        height: 50,
-        width: 50
+        right: 10,
+        top: 10,
+        height: 40,
+        width: 40
     },
     imageLoading: {
         height: 80,

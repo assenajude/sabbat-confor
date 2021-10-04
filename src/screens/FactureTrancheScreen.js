@@ -31,6 +31,9 @@ function FactureTrancheScreen({route}) {
     const [trancheMontant, setTrancheMontant] = useState('')
 
     const handlePayTranche = (data) => {
+        if(!data.validation && Number(trancheMontant)<= 0) {
+            return alert("Veuillez saisir un montant supérieur à zero")
+        }
         if(Number(trancheMontant)>0) {
             const totalSolde = data.solde + Number(trancheMontant)
             if(totalSolde>data.montant) {
@@ -59,6 +62,8 @@ function FactureTrancheScreen({route}) {
         setFactureTranches(selectedList)
     }
 
+    const isPermited = selectedFacture.Commande?.UserId === connectedUser.id || userRoleAdmin()
+
     useEffect(() => {
         setFactureTranches(factureTranchesList)
     }, [])
@@ -84,8 +89,9 @@ function FactureTrancheScreen({route}) {
                             width: 120,
                             alignItems: 'center',
                             justifyContent: 'center',
+                                marginHorizontal: 10
                         }}>
-                            {item.montant !== item.solde && selectedFacture.Commande.UserId === connectedUser.id &&
+                            {item.montant !== item.solde && isPermited &&
                             <AppButton
                                 title='payer'
                                 onPress={() => handleShowTranche({item, label: 'payTranche'})}/>}
@@ -106,6 +112,7 @@ function FactureTrancheScreen({route}) {
                             <AppText style={{fontWeight: 'bold'}}>{formatPrice(item.montant)}</AppText>
                             {item.solde === item.montant && <View>
                                 {item.payedState === 'confirmed' && <AppIconButton
+                                    iconColor={colors.blanc}
                                     onPress={() => alert("Vous avez deja payé cette tranche.")}
                                     iconName='credit-card-check'
                                     buttonContainer={{

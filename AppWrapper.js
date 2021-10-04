@@ -74,8 +74,7 @@ function AppWrapper(props) {
                     loop={true}
                     source={require('./assets/animations/loading')}
                     style={{
-                    height: 100,
-                    width: 200
+                    width: 100
                 }}/>
             </View>
         <AppLoading

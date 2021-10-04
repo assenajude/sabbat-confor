@@ -58,7 +58,7 @@ export default payementPlan = () => {
 
 
     const isPlanDisabled = (selectedPlan) => {
-        const isDisabled =  selectedPlan.libelle.toLowerCase() === 'le bon samaritain' && !user.isHero || selectedPlan.nombreMensualite > permitPlan()
+        const isDisabled =  selectedPlan.libelle.toLowerCase() === 'bon samaritain' && !user.isHero || selectedPlan.nombreMensualite > permitPlan()
         if(isDisabled) return true
         return false
     }

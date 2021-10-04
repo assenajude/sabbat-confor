@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {createStackNavigator} from "@react-navigation/stack";
+import {createStackNavigator, TransitionPresets} from "@react-navigation/stack";
 import {Keyboard} from 'react-native'
 import EcommerceScreen from "../screens/EcommerceScreen";
 import colors from "../utilities/colors";
@@ -51,6 +51,7 @@ function CommerceNavigator({navigation}) {
             headerStyle: {backgroundColor: colors.rougeBordeau},
             headerTintColor: colors.blanc,
             headerTitleAlign: 'center',
+            ...TransitionPresets.SlideFromRightIOS,
             headerRight: () => <CartIconRight cartLenght={cartItemsLenght} getToCartScreen={() => navigation.navigate('AccueilNavigator', {screen: routes.CART})}/>
         }}>
             <CommerceStackNav.Screen name='CommerceScreen' component={EcommerceScreen} options={{
@@ -66,6 +67,7 @@ function CommerceNavigator({navigation}) {
                         searching={searchingInCommerce} startingSearch={() => setSearchingInCommerce(true)} leaveInput={() => setSearchingInCommerce(false)}/>,
                 headerLeft: () =>
                     <AppAvatar
+                        showNottif={true}
                         user={user}
                         onPress={() =>navigation.openDrawer()}/>
             }}/>

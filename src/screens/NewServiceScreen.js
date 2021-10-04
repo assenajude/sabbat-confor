@@ -116,7 +116,11 @@ function NewServiceScreen({navigation, route}) {
                 <AppFormField name='montantMin' title='Montant minimum'/>
                 <AppFormField name='montantMax' title='Montant Maximum'/>
                 <AppFormSwitch title='Service disponible? ' name='isDispo'/>
-                <AppSubmitButton title='Ajouter'/>
+                <AppSubmitButton
+                    style={{
+                        marginVertical: 40
+                    }}
+                    title='Ajouter'/>
             </AppForm>
         </ScrollView>
        </>

@@ -55,14 +55,14 @@ function FactureDetailsScreen({route, navigation}) {
                 <View>
                     {facture.Tranches.map((tranche, index) =>
                         <TrancheItem
-                            ownerUserId={facture.Commande?.UserId}
+                            payedState={tranche.payedState}
                             key={tranche.id.toString()}
                             trancheIndex={index+1}
                             isTranchePayed={tranche.payed}
                             trancheMontant={tranche.montant}
                             tranchePayedDate={tranche.updatedAt}
                             trancheDateEcheance={tranche.dateEcheance}
-                            payTranche={() => payFactureTranche(tranche) }/>)}
+                        />)}
                 </View>
 
             </View>

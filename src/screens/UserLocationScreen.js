@@ -47,8 +47,10 @@ function UserLocationScreen({navigation}) {
             }>
                 <AppText>Vous n'avez pas de demandes de location en cours</AppText>
                 <AppButton
-                    textStyle={{fontSize: 15}}
-                    width={200}
+                    style={{
+                        marginVertical: 20,
+                        width: 300
+                    }}
                     title='Commander maintenant'
                     onPress={() => navigation.navigate('E-location')}/>
             </View>}

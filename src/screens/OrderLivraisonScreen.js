@@ -12,20 +12,20 @@ import AppButton from "../components/AppButton";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import AppLabelWithValue from "../components/AppLabelWithValue";
 import usePlaceOrder from "../hooks/usePlaceOrder";
-import useAuth from "../hooks/useAuth";
 import {AntDesign} from "@expo/vector-icons";
 import ListFooter from "../components/list/ListFooter";
+import AppAmountValue from "../components/AppAmountValue";
 
 function OrderLivraisonScreen({navigation}) {
     const dispatch = useDispatch()
     const store = useStore()
-    const {formatPrice} = useAuth()
-    const {getShippingRate, getTotal} = usePlaceOrder()
+    const {getShippingRate} = usePlaceOrder()
     const loading = useSelector(state => state.entities.userAdresse.loading)
     const adresseByUser = useSelector(state => state.entities.userAdresse.list);
     const currentSelected = useSelector(state => state.entities.userAdresse.selectedAdresse)
     const [persoFees, setPersoFees]  = useState(false)
     const isAdresseNotEmpty = Object.keys(currentSelected).length>0 || persoFees
+    const currentOrder = useSelector(state => state.entities.order.currentOrder)
 
     const handleSelectItem = async (item) => {
         await dispatch(getSelectedAdress(item.id))
@@ -48,27 +48,18 @@ function OrderLivraisonScreen({navigation}) {
         <>
         <View style={styles.container}>
             <View style={styles.summary}>
-                <View style={styles.itemLine}>
-                    <AppText style={{fontWeight: 'bold'}}>Montant actuel commande: </AppText>
-                    <AppText style={{
-                        fontWeight: 'bold',
-                        color: colors.rougeBordeau
-                    }}>{formatPrice(getTotal()-getShippingRate())}</AppText>
-                </View>
-                <View style={styles.itemLine}>
-                    <AppText style={{fontWeight: 'bold'}}>Frais de livraison: </AppText>
-                    <AppText style={{
-                        fontWeight: 'bold',
-                        color: colors.rougeBordeau
-                    }}>{formatPrice(getShippingRate())}</AppText>
-                </View>
-                <View style={styles.itemLine}>
-                    <AppText style={{fontWeight: 'bold'}}>Net actuel à payer: </AppText>
-                    <AppText style={{
-                        fontWeight: 'bold',
-                        color: colors.rougeBordeau
-                    }}>{formatPrice(getTotal())}</AppText>
-                </View>
+                <AppAmountValue
+                    value={currentOrder.amount}
+                    label='Commande'
+                />
+                <AppAmountValue
+                    value={getShippingRate()}
+                    label='Frais livraison'
+                />
+                <AppAmountValue
+                    value={currentOrder.amount + getShippingRate()}
+                    label='Net actuel'
+                />
             </View>
             <View>
                 <View style={styles.adressHeader}>
@@ -122,16 +113,14 @@ function OrderLivraisonScreen({navigation}) {
                     <View style={styles.emptyStyle}>
                         <AppText>Vous n'avez pas d'adresses de livraison personnelles</AppText>
                     </View>}
-                        {isAdresseNotEmpty && <AppButton  style={styles.buttonStyle} title='continuer' onPress={() => {navigation.navigate(routes.ORDER_PAYEMENT)}}/>}
+                        {isAdresseNotEmpty && <AppButton
+                            style={styles.buttonStyle}
+                            title='continuer' onPress={() => {navigation.navigate(routes.ORDER_PAYEMENT)}}/>}
                 </ScrollView>
         </View>
-            <View style={{
-                position: 'absolute',
-                right: 10,
-                bottom: 10
-            }}>
-                <ListFooter onPress={() => navigation.navigate('AccueilNavigator', {screen: 'NewUserAdresseScreen', params:{mode:'addNew'}})}/>
-            </View>
+
+                <ListFooter
+                    onPress={() => navigation.navigate('AccueilNavigator', {screen: 'NewUserAdresseScreen', params:{mode:'addNew'}})}/>
             </>
     );
 }
@@ -145,10 +134,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 10
     },
-    itemLine: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
     adressHeader: {
         backgroundColor: colors.rougeBordeau,
         marginTop: 20,
@@ -157,7 +142,8 @@ const styles = StyleSheet.create({
     buttonStyle: {
         alignSelf: 'center',
         marginBottom: 30,
-        marginTop: 50
+        marginTop: 50,
+        width: 300
     },
     emptyStyle: {
         flex: 1,

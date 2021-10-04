@@ -66,11 +66,7 @@ export default useDirectUpload = () => {
 
                 }
             }
-            if(uploadSuccess) {
-                alert('upload success..')
-            } else {
-                alert("can't upload now..try later")
-            }
+            if(!uploadSuccess) alert("can't upload now..try later")
             return uploadSuccess
         }catch (e) {
             throw new Error(`error: ${e}`)

@@ -9,25 +9,19 @@ function AppDateTimePicker({getDate, getTime,changeDate,dateValue,dateMode, show
         <View>
             <View style={{margin: 10}}>
                 <AppButton
-                    height={30}
-                    color1={colors.leger}
-                    color2={colors.leger}
-                    color3={colors.leger}
+                    style={{backgroundColor: colors.bleuFbi}}
                     iconSize={20}
-                    style={{padding: 5}}
-                    textStyle={{fontSize: 15, marginLeft: 5}}
                     iconName='calendar'
-                    iconColor={colors.blanc} title='Date' onPress={getDate}/>
+                    title='Date'
+                    onPress={getDate}/>
             </View>
             <View style={{margin: 10}}>
-                <AppButton height={30}
-                    color1={colors.leger}
-                    color2={colors.leger}
-                    color3={colors.leger}
-                    iconColor={colors.blanc}
-                    textStyle={{fontSize: 15, marginLeft: 5}}
-                    iconSize={20} style={{padding: 5}} iconName='hourglass'
-                    title="Heure" onPress={getTime} />
+                <AppButton
+                    style={{backgroundColor: colors.bleuFbi}}
+                    iconSize={20}
+                    iconName='hours-24'
+                    title="Heure"
+                    onPress={getTime} />
             </View>
             {showPicker && <DateTimePicker
                               testID={dateTimeId}

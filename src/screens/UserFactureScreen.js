@@ -1,4 +1,4 @@
-import React, {useCallback,useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View,FlatList} from "react-native";
 import {useSelector, useDispatch, useStore} from "react-redux";
 
@@ -20,6 +20,7 @@ function UserFactureScreen({navigation}) {
     const {userRoleAdmin, dataSorter} = useAuth()
     const user = useSelector(state => state.auth.user)
     const connectedUser = useSelector(state => state.profile.connectedUser)
+    const [factureLoading, setFactureLoading] = useState(false)
     const userFactures = useSelector(state => {
         let newFactures = []
         const user = state.auth.user
@@ -31,21 +32,21 @@ function UserFactureScreen({navigation}) {
         }
         return dataSorter(newFactures)
     })
-    const isLoading = useSelector(state => state.entities.facture.loading)
 
     const getUserFactures = useCallback(async () => {
-        if(connectedUser.factureCompter > 0) {
+        setFactureLoading(true)
             await dispatch(getFacturesByUser())
             await dispatch(getTranches())
+        setFactureLoading(false)
             const error = store.getState().entities.facture.error
             if(error !== null) return;
             dispatch(getUserCompterReset({userId: user.id, factureCompter: true}))
-        }
-
     }, [])
 
     useEffect(() => {
-        getUserFactures()
+        if(Object.keys(connectedUser.length>0) || connectedUser.factureCompter > 0) {
+            getUserFactures()
+        }
     }, [])
 
 
@@ -53,7 +54,7 @@ function UserFactureScreen({navigation}) {
     if(user && userFactures.length >=1) {
        return (
            <>
-               <AppActivityIndicator visible={isLoading}/>
+               <AppActivityIndicator visible={factureLoading}/>
                <View style={{bottom: 20}}>
            <FlatList data={userFactures} keyExtractor={item => item.id.toString()}
                     renderItem={({item}) =>

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image, ScrollView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {Image, ScrollView, StyleSheet,TouchableWithoutFeedback, View} from "react-native";
 import AppText from "../components/AppText";
 import {useDispatch, useSelector} from "react-redux";
 import {getColorSizes, getSelectOption} from "../store/slices/mainSlice";
@@ -91,13 +91,11 @@ function LocationDetailScreen({route, navigation}) {
                     <Image source={{uri: selectedImage}} style={styles.imageStyle}/>
                 </View>
                 <ScrollView horizontal>
-                    <View style={styles.imagesContainer}>
                         {item.imagesLocation.map((image, index) => <View key={index.toString()} style={{margin: 10}}>
                             <TouchableWithoutFeedback onPress={() => handleChangeImage(image)}>
                                 <Image source={{uri: image}} style={{height: 60, width: 60}} />
                             </TouchableWithoutFeedback>
                         </View>)}
-                    </View>
                 </ScrollView>
                 <View style={{margin: 5}}>
                     <View style={{ marginTop: 5}}>
@@ -229,11 +227,6 @@ const styles = StyleSheet.create({
         height: 300,
         width: '100%',
         overflow: 'hidden'
-    },
-    imagesContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
     },
     rupture: {
         position:'absolute',

@@ -47,14 +47,18 @@ function UserServiceScreen({navigation}) {
                           )
 
                   } }/>}
-            {!isLoading && error === null && localDemandeList.length === 0 && <View style={{
+            {!isLoading && error === null && localDemandeList.length === 0 &&
+            <View style={{
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
                 <AppText>Vous n'avez pas demande de service en cours..</AppText>
-                <AppButton textStyle={{fontSize: 16}}
-                    width={'50%'}
+                <AppButton
+                    style={{
+                        marginVertical: 20,
+                        width: 300
+                    }}
                     title='Demander maintenant'
                     onPress={() => navigation.navigate('E-service')}/>
                 </View>}

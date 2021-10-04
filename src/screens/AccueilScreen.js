@@ -7,34 +7,25 @@ import AddToCartModal from "../components/shoppingCart/AddToCartModal";
 import useAddToCart from "../hooks/useAddToCart";
 import {getSelectedOptions} from "../store/slices/mainSlice";
 import AppActivityIndicator from "../components/AppActivityIndicator";
-import {getToggleFavorite} from "../store/slices/userFavoriteSlice";
-import useItemReductionPercent from "../hooks/useItemReductionPercent";
 import AppCardNew from "../components/AppCardNew";
-import OrderHelpModal from "../components/OrderHelpModal";
 import useAuth from "../hooks/useAuth";
 import colors from "../utilities/colors";
 import AppText from "../components/AppText";
 import AppIconButton from "../components/AppIconButton";
-import AppInput from "../components/AppInput";
-import dayjs from "dayjs";
 import useMainFeatures from "../hooks/useMainFeatures";
 import ScrollHeaderComponent from "../components/ScrollHeaderComponent";
+import AppSearchbar from "../components/AppSearchbar";
 
 function AccueilScreen({navigation, route}) {
     const selectedProduct = route.params
     const dispatch = useDispatch();
     const {dataSorter} = useAuth()
-    const {getReductionPercent} = useItemReductionPercent()
     const {addItemToCart} = useAddToCart()
     const {handleDeleteProduct} = useMainFeatures()
 
     const isLoading = useSelector(state => state.entities.main.loading)
     const allProducts = useSelector(state => state.entities.main.list)
-    const articleFavorites = useSelector(state => state.entities.userFavorite.articleFavoris)
-    const locationFavorites = useSelector(state => state.entities.userFavorite.locationFavoris)
     const cartLoading = useSelector(state => state.entities.shoppingCart.loading)
-    const [helpModalVisible, setHelpModalVisible] = useState(false)
-    const [selectedSource, setSelectedSource] = useState(null)
     const [showAddToCardModal, setShowAddToCardModal] = useState(false)
     const [currentAdded, setCurrentAdded] = useState({})
     const [mainDatas, setMainDatas] = useState(allProducts)
@@ -44,12 +35,6 @@ function AccueilScreen({navigation, route}) {
     const [showHeader, setShowHeader] = useState(true)
 
     const scrollRef = useRef()
-
-
-    const productFavorites = (productType) => {
-        if(productType === 'article') return articleFavorites
-        else return locationFavorites
-    }
 
     const handleAddToCard =  async (item) => {
         if(item.ProductOptions.length > 1) {
@@ -101,6 +86,9 @@ function AccueilScreen({navigation, route}) {
             setShowHeader(true)
         }else{
             setShowHeader(false)
+            if(searching) {
+                setSearching(false)
+            }
         }
     }
 
@@ -124,29 +112,26 @@ function AccueilScreen({navigation, route}) {
     return (
         <>
             <AppActivityIndicator visible={isLoading || cartLoading}/>
+            <View>
+                <ScrollHeaderComponent/>
+                {!showHeader && !searching &&
+                <AppIconButton
+                    iconColor={colors.blanc}
+                    onPress={() => {
+                        scrollRef.current.scrollTo({ x: 0, y: 0, animated: true })
+                        setSearching(true)
+                    }}
+                    buttonContainer={{
+                        backgroundColor: colors.rougeBordeau,
+                        position: 'absolute',
+                        left: '50%',
+                    }}
+                    iconName='text-search'/>}
+            </View>
             <ScrollView
                 ref={scrollRef}
-                stickyHeaderIndices={[0]}
                 onScroll={event => handleScrolling(event.nativeEvent)}
             >
-                <View>
-                    <ScrollHeaderComponent/>
-                    {!showHeader && !searching &&
-                    <AppIconButton
-                        iconColor={colors.blanc}
-                        onPress={() => {
-                            setSearching(true)
-                            setShowHeader(true)
-                            scrollRef.current.scrollTo({ x: 0, y: 0, animated: true })
-                        }}
-                        buttonContainer={{
-                            backgroundColor: colors.rougeBordeau,
-                            position: 'absolute',
-                            left: '50%',
-                            top: 10
-                        }}
-                        iconName='text-search'/>}
-                </View>
             <View style={styles.header}>
                 <View style={{
                    alignItems: 'center'
@@ -161,24 +146,14 @@ function AccueilScreen({navigation, route}) {
                         marginHorizontal: 20
                     }}
                     iconName='text-search'
-                    iconSize={40}
+                    iconSize={30}
                 />}
                     {showHeader && searching &&
-                    <AppInput
-                        otherStyle={{
-                            height: 35,
-                            width: 250,
-                        }}
-                        autoFocus={true}
-                        onBlur={() => setSearching(false)}
-                        inputContainerStyle={{
-                        marginVertical: 20,
-                            width: 300
-                    }}
-
-                        iconName='search1'
-                        value={searchLabel}
-                        onChangeText={value => startingSearch(value)}/>}
+                        <AppSearchbar
+                            onChangeText={val => startingSearch(val)}
+                            value={searchLabel}
+                        />
+                    }
                 </View>
             </View>
             {!isLoading  && mainDatas.length === 0 &&
@@ -188,38 +163,19 @@ function AccueilScreen({navigation, route}) {
                 {mainDatas.length>0 && <View>
                     {mainDatas.map((item, index) =>
                         <AppCardNew
-                            promoting={item.flashPromo && dayjs(item.debutFlash)<=dayjs() && dayjs(item.finFlash)>dayjs()}
+                            item={item}
                             editItem={() => {
                                 if(item.Categorie.typeCateg === 'article')navigation.navigate('E-commerce')
                                 else navigation.navigate('E-location')
                             }}
-                            nextPromo={item.flashPromo && dayjs(item.debutFlash)>dayjs()}
-                            flashEnded={item.flashPromo && dayjs(item.finFlash)<= dayjs()}
-                            debutPromo={item.debutFlash}
-                            finPromo={item.finFlash}
-                            itemType={item.Categorie.typeCateg}
                             key={index.toString()}
-                        showHelpInfo={() => {
-                            setSelectedSource(item.Categorie.typeCateg === 'article'?item.imagesArticle[0]:item.imagesLocation[0])
-                            setHelpModalVisible(true)
-                        }}
                         viewDetails={() => {
                             dispatch(getSelectedOptions(item))
                             navigation.navigate('AccueilNavigator',{screen:item.Categorie.typeCateg === 'article'?routes.ARTICLE_DETAIL : routes.LOCATION_DETAIL, params: item})
-
                         }}
                         addToCart={ () => handleAddToCard(item)}
                         deleteItem={() => deleteItem(item)}
-                        notInStock={item.Categorie.typeCateg === 'article'?item.qteStock <= 0 : item.qteDispo <= 0}
-                        titleLabel={item.Categorie.typeCateg === 'article'?'Prix:' : item.frequence === 'mensuelle'?'Coût mensuelle' : 'Coût journalier'}
-                        secondTitle={item.Categorie.typeCateg === 'article'?item.prixReel : item.coutReel}
-                        firstTitle={item.Categorie.typeCateg === 'article'?item.prixPromo : item.coutPromo}
-                        aideInfo={item.aide}
-                        itemReductionPercent={getReductionPercent(item)}
-                        isFavorite={productFavorites().some(fav => fav.id === item.id)}
-                        toggleFavorite={() => dispatch(getToggleFavorite(item))}
-                        description={item.Categorie.typeCateg === 'article'?item.designArticle : item.libelleLocation}
-                        source={{uri: item.Categorie.typeCateg === 'article'?item.imagesArticle[0] : item.imagesLocation[0]}} />)}
+                        />)}
                 </View>
                 }
             </ScrollView>
@@ -236,10 +192,6 @@ function AccueilScreen({navigation, route}) {
                 designation={currentAdded?.Categorie?.typeCateg === 'article'?currentAdded.designArticle : currentAdded.libelleLocation}
                 source={{uri: currentAdded?.Categorie?.typeCateg === 'article'?currentAdded.imagesArticle[0] : currentAdded.imagesLocation[0]}}
             />}
-                <OrderHelpModal
-                    selectedSource={{uri: selectedSource}}
-                    closeModal={() => setHelpModalVisible(false)}
-                    visible={helpModalVisible}/>
                 </>
     );
 }

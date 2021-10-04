@@ -12,7 +12,8 @@ const payementSlice = createSlice({
         selectedPayement: {},
         payementPlans: [],
         selectedPlan: {},
-        currentPlan: {}
+        currentPlan: {},
+        userCashback: 0
     },
     reducers: {
         payementRequested: (state,action)=> {
@@ -42,6 +43,9 @@ const payementSlice = createSlice({
             otherPlans.forEach(plan => {
                 plan.checked = false
             })
+            if(selectedPlan.libelle.toLowerCase() === 'cashprime') {
+                state.userCashback = action.payload.cashback
+            }
         },
         activePayement: (state, action) => {
           let selectedPayement = state.list.find(item => item.id === action.payload)

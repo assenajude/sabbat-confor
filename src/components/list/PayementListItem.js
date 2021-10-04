@@ -55,6 +55,7 @@ function PayementListItem({libelle, description, checked=false, selectItem,
             <View>
                 {showDetailButton &&
                 <AppButton
+                    height={40}
                     labelStyle={{color: colors.dark}}
                     style={{alignSelf: 'flex-start', backgroundColor: colors.leger}}
                     title='+ details'

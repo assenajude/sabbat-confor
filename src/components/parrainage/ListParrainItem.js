@@ -22,8 +22,9 @@ function ListParrainItem({avatarUser,parrainUsername, parrainEmail,
                 {parrainageResponseEditing && <View style={{alignItems: 'center', backgroundColor:colors.lightGrey, padding: 10}}>
                     <View style={{alignSelf: 'flex-end'}}>
                         <AppIconButton
+                            buttonContainer={{backgroundColor: colors.rougeBordeau}}
                             onPress={editParrainageResponse}
-                            iconColor={colors.rougeBordeau}
+                            iconColor={colors.blanc}
                             iconName='close'
                         />
                     </View>
@@ -31,7 +32,8 @@ function ListParrainItem({avatarUser,parrainUsername, parrainEmail,
                    <View style={styles.demande}>
                         <AppText style={{fontWeight: 'bold'}}>Demande de parrainage</AppText>
                        <AppIconButton
-                           iconColor={colors.vert}
+                           buttonContainer={{backgroundColor: colors.vert}}
+                           iconColor={colors.blanc}
                            onPress={sendParrainageResponse}
                            iconName='account-check'
                        />
@@ -44,12 +46,14 @@ function ListParrainItem({avatarUser,parrainUsername, parrainEmail,
                                 backgroundColor: colors.rougeBordeau
                             }}
                             iconName='account-remove'
+                            iconColor={colors.blanc}
                             onPress={stopParrainage}/>
 
                     </View>}
                     {!inSponsoring && msgResponded && <View style={{flexDirection: 'row'}}>
                         <AppText style={{fontWeight:'bold'}}>Reprise de parrainage</AppText>
                         <AppIconButton
+                            iconColor={colors.blanc}
                             iconName='backup-restore'
                             onPress={remakeParrainage}
                             buttonContainer={{

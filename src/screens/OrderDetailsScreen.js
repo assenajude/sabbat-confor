@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View, ScrollView, StyleSheet} from "react-native";
 import useOrderInfos from "../hooks/useOrderInfos";
 import AppModePayement from "../components/AppModePayement";
@@ -19,6 +19,8 @@ import useAuth from "../hooks/useAuth";
 import useParrainage from "../hooks/useParrainage";
 import {getSelectedFacture} from "../store/slices/factureSlice";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import AppButton from "../components/AppButton";
+import {getAllParrains, getUserParrains} from "../store/slices/parrainageSlice";
 
 function OrderDetailsScreen({route, navigation}) {
     const dispatch = useDispatch()
@@ -26,6 +28,7 @@ function OrderDetailsScreen({route, navigation}) {
     const currentCommande = route.params
     const {formatPrice} = useAuth()
     const {getParrainagePercent} = useParrainage()
+    const connectedUser = useSelector(state => state.auth.user)
     const comptesParrainage = useSelector(state => state.entities.parrainage.list)
     const loading = useSelector(state => state.entities.facture.loading)
     const findOther = useSelector(state => {
@@ -40,6 +43,7 @@ function OrderDetailsScreen({route, navigation}) {
     const {getModePayement,getPointRelais} = useOrderInfos()
     const {saveAccordEdit, saveLivraisonEdit} = useManageUserOrder()
     const [orderRelais, setOrderRelais] = useState()
+    const [loadingParrains, setLoadingParrains] = useState(false)
 
    const handleChangeAccord = (value) => {
         const accordData = {
@@ -69,7 +73,14 @@ function OrderDetailsScreen({route, navigation}) {
         navigation.navigate(routes.FACTURE_DETAILS, params)
     }
 
+    const getCompteParrainage = useCallback(async () => {
+        setLoadingParrains(true)
+        await dispatch(getAllParrains())
+        setLoadingParrains(false)
+    }, [])
+
     useEffect(() => {
+        getCompteParrainage()
           if(commande.typeCmde === 'article' && commande.UserAdresse) {
               setOrderRelais(getPointRelais(commande.id))
           }
@@ -82,19 +93,22 @@ function OrderDetailsScreen({route, navigation}) {
     }
     return (
         <>
-            <AppActivityIndicator visible={loading}/>
-        <ScrollView>
+            <AppActivityIndicator visible={loading || loadingParrains}/>
+        <ScrollView contentContainerStyle={{
+            paddingBottom: 50
+        }}>
             <View style={styles.container}>
-
                     <AppModePayement modePayement={getModePayement(commande.id)|| currentCommande.payement}/>
-                    <AppLottieViewAnim lottieSource={require('../assets/animations/data_watch')} lottieStyle={{width: 150, top: -25}}
-                                       lottieAutoPlay={itemContratStatus.toLowerCase() === 'en cours'} lottieLoop={itemContratStatus.toLowerCase() === 'en cours'}/>
+                    <AppLottieViewAnim
+                        lottieSource={require('../assets/animations/data_watch')}
+                        lottieStyle={{width: 150, top: -25}}
+                        lottieAutoPlay={itemContratStatus.toLowerCase() === 'en cours'}
+                        lottieLoop={itemContratStatus.toLowerCase() === 'en cours'}/>
                     <View style={{
                         marginTop: 30,
                         marginBottom: 10
                     }}>
                      <AppDetailCarousel carouselItems={commande.CartItems} typeFacture={commande.typeCmde === 'e-commerce'?'Commade ':''} labelValue={commande.numero}/>
-
                     </View>
                     <View style={styles.contentStyle}>
                         <View>
@@ -109,19 +123,23 @@ function OrderDetailsScreen({route, navigation}) {
                            <AppLabelWithValue label='Total payé: ' labelValue={commande.Facture?formatPrice(commande.Facture.solde):formatPrice(0)}/>
                        </View>
                     </View>
-                    <View>
+                    <View style={{
+                        borderWidth: 1
+                    }}>
                         <View style={{
                             backgroundColor: colors.rougeBordeau,
-                            margin: 5
+                            margin: 5,
                         }}>
                             <AppText style={{color: colors.blanc}}>Dans la commande</AppText>
                         </View>
                         <View>
                             {commande.CartItems.map((orderItem, index) =>
-                                <AppLabelWithValue key={index.toString()}
-                                                   label={orderItem.OrderItem.quantite?orderItem.OrderItem.quantite:0}
-                                                   labelValue={orderItem.OrderItem.libelle}
-                                                   secondLabel={orderItem.OrderItem.montant?formatPrice(orderItem.OrderItem.montant):0}
+                                <AppLabelWithValue
+                                    key={index.toString()}
+                                    labelStyle={{width: 200}}
+                                    label={orderItem.OrderItem.quantite?orderItem.OrderItem.quantite:0}
+                                    labelValue={orderItem.OrderItem.libelle}
+                                    secondLabel={orderItem.OrderItem.montant?formatPrice(orderItem.OrderItem.montant):0}
                                                    />)}
                         </View>
                         <AppLabelWithValue label='Frais de livraison: ' labelValue={formatPrice(commande.fraisTransport)}/>
@@ -151,7 +169,13 @@ function OrderDetailsScreen({route, navigation}) {
                         <StatusPicker labelStatus='Livraison' statusValue={commande.statusLivraison} statusData={initData.livraisonData}
                                       changeStatusValue={handleChangeLivraison}/>
                         <AppLabelWithValue label='Contrat:' labelValue={commande.Contrats.length>0?commande.Contrats[0].status: 'Pas de contrats'}/>
-                        {commande.Contrats && commande.Contrats.length>0 && <AppButton
+                        {commande.Contrats && commande.Contrats.length>0 &&
+                        <AppButton
+                            iconName='keyboard-backspace'
+                            style={{
+                                alignSelf: 'flex-start',
+                                marginTop: 10
+                            }}
                             onPress={handleGetFacture}
                             title='consulter la facture'
                         />}

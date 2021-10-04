@@ -1,6 +1,6 @@
 import React from 'react';
 import {useSelector} from 'react-redux'
-import {createStackNavigator} from "@react-navigation/stack";
+import {createStackNavigator, TransitionPresets} from "@react-navigation/stack";
 import AccueilScreen from "../screens/AccueilScreen";
 import Color from "../utilities/colors";
 import ArticleDetailScreen from '../screens/ArticleDetailScreen';
@@ -47,6 +47,8 @@ import UserParamScreen from "../screens/UserParamScreen";
 import CguScreen from "../screens/CGUScreen";
 import AppHeaderLeft from "../components/AppHeaderLeft";
 import OtherFileNavigator from "./OtherFileNavigator";
+import CategorieScreen from "../screens/CategorieScreen";
+import NewCategorieScreen from "../screens/NewCategorieScreen";
 
 const ArticleStackNavigator = createStackNavigator();
 
@@ -57,9 +59,10 @@ const AccueilNavigator = () => {
         <ArticleStackNavigator.Navigator
             initialRouteName='HomeScreen'
             screenOptions={({navigation}) => ({
-            headerStyle: {backgroundColor: Color.rougeBordeau},
-            headerTintColor: Color.blanc,
-            headerRight: ({size, color}) => (
+                headerStyle: {backgroundColor: Color.rougeBordeau},
+                headerTintColor: Color.blanc,
+                ...TransitionPresets.SlideFromRightIOS,
+                headerRight: ({size, color}) => (
                 <CartIconRight cartLenght={cartItemLenght} getToCartScreen={() => navigation.navigate('AccueilNavigator', {screen: 'ShoppingCartScreen'})}/>
             )
         })}>
@@ -67,7 +70,10 @@ const AccueilNavigator = () => {
                options={({navigation}) => ({
                    headerShown: false,
                    headerLeft: () =>
-                       <AppAvatar ownerUserAvatar={user.avatar} avatarUrl={{uri:user.avatar}} onPress={() =>navigation.openDrawer()}/>,
+                       <AppAvatar
+                           user={user}
+                           showNottif={true}
+                           onPress={() =>navigation.openDrawer()}/>,
                })}/>
 
               <ArticleStackNavigator.Screen name='ShoppingCartScreen' component={ShoppingCartScreen}
@@ -211,6 +217,15 @@ const AccueilNavigator = () => {
                     headerShown: false
                 }}
             />
+            <ArticleStackNavigator.Screen name='CategorieScreen' component={CategorieScreen} options={({navigation}) => ({
+                title: 'Toutes les categories',
+                headerLeft: (props) =>
+                    <AppHeaderLeft
+                        onPress={() => navigation.navigate(routes.HOME)}/>
+            })}/>
+            <ArticleStackNavigator.Screen name='NewCategorieScreen' component={NewCategorieScreen} options={{
+                title: 'Nouvelle categorie'
+            }}/>
 
         </ArticleStackNavigator.Navigator>
 )};

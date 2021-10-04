@@ -20,7 +20,7 @@ function SelectionItem({imageUrl, label, selectItem,header}) {
                             resizeMode='contain' source={imageUrl} style={styles.imageStyle}/>}
                             {header && <AppText style={styles.header}>{header}</AppText>}
                     </View>
-                {imageLoading && <View style={styles.imageLoading}>
+                {imageUrl && imageLoading && <View style={styles.imageLoading}>
                     <LottieView
                         loop={true}
                         autoPlay={true}
@@ -64,8 +64,10 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 80,
-        width: 80,
+        maxHeight: 150,
+        minHeight: 80,
+        width: '100%',
+
         backgroundColor: colors.leger
     },
     header: {

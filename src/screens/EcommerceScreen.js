@@ -8,28 +8,20 @@ import useAddToCart from "../hooks/useAddToCart";
 import AddToCartModal from "../components/shoppingCart/AddToCartModal";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import {getSelectedOptions} from "../store/slices/mainSlice";
-import {getToggleFavorite} from "../store/slices/userFavoriteSlice";
-import useItemReductionPercent from "../hooks/useItemReductionPercent";
 import useAuth from "../hooks/useAuth";
 import AppCardNew from "../components/AppCardNew";
-import dayjs from "dayjs";
 import useMainFeatures from "../hooks/useMainFeatures";
-import OrderHelpModal from "../components/OrderHelpModal";
 
 function EcommerceScreen({navigation}) {
     const dispatch = useDispatch()
     const {addItemToCart} = useAddToCart()
-    const {userRoleAdmin, formatDate} = useAuth()
+    const {userRoleAdmin} = useAuth()
     const {handleDeleteProduct} = useMainFeatures()
-    const {getReductionPercent} = useItemReductionPercent()
     const articles = useSelector(state => state.entities.article.searchList)
     const loading = useSelector(state => state.entities.article.loading)
     const cartLoading = useSelector(state => state.entities.shoppingCart.loading)
-    const userFavorites = useSelector(state => state.entities.userFavorite.articleFavoris)
     const [showItemModal, setShowItemModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState({})
-    const [selectedSource, setSelectedSource]= useState(null)
-    const [helpModalVisible, setHelpModalVisible] = useState(false)
 
     const handleAddToCart = async (item) => {
         if(item.ProductOptions.length >= 1) {
@@ -58,26 +50,10 @@ function EcommerceScreen({navigation}) {
             data={articles} keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) =>
                 <AppCardNew
-                    showHelpInfo={() => {
-                        setSelectedSource(item.imagesArticle[0])
-                        setHelpModalVisible(true)
-                    }}
+                    item={item}
+
                     editItem={() => navigation.navigate(routes.NEW_ARTICLE, item)}
-                    nextPromo={item.flashPromo && dayjs(item.debutFlash)>dayjs()}
-                    flashEnded={item.flashPromo && dayjs(item.finFlash)<=dayjs()}
-                    debutPromo={formatDate(item.debutFlash)}
-                    finPromo={formatDate(item.finFlash)}
                     deleteItem={() => handleDeleteProduct(item)}
-                    titleLabel='Prix: '
-                    description={item.designArticle}
-                    isFavorite={userFavorites.some(fav => fav.id === item.id)}
-                    toggleFavorite={() => dispatch(getToggleFavorite(item))}
-                    secondTitle={item.prixReel}
-                    firstTitle={item.prixPromo}
-                    aideInfo={item.aide}
-                    itemReductionPercent={getReductionPercent(item)}
-                    notInStock={item.qteStock <= 0}
-                    source={{uri: item.imagesArticle[0]}}
                     addToCart={() => handleAddToCart(item)}
                     viewDetails={() => {
                         dispatch(getSelectedOptions(item))
@@ -97,10 +73,6 @@ function EcommerceScreen({navigation}) {
                     setShowItemModal(false)
                     navigation.navigate(routes.CART)
                 }}/>}
-            <OrderHelpModal
-                selectedSource={{uri: selectedSource}}
-                closeModal={() => setHelpModalVisible(false)}
-                visible={helpModalVisible}/>
             </>
            );
 

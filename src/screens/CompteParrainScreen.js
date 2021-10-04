@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {View, StyleSheet, FlatList, TouchableOpacity, Alert} from "react-native";
 import {MaterialCommunityIcons, MaterialIcons, Entypo} from '@expo/vector-icons';
 
@@ -7,10 +7,15 @@ import {useDispatch, useSelector, useStore} from "react-redux";
 import AppButton from "../components/AppButton";
 import AppActivityIndicator from "../components/AppActivityIndicator";
 import {
-    createParrainageCompte, getAllParrains,
+    createParrainageCompte,
     getCompteParrainActivate,
     getEditQuotiteSave,
-    getInitialEdit, getStartInitialEdit, getStartQuotiteEdit, getUserParrainageCompte, getUserParrains
+    getInitialEdit,
+    getPopulateParrainsOrders,
+    getStartInitialEdit,
+    getStartQuotiteEdit,
+    getUserParrainageCompte,
+    getUserParrains
 } from "../store/slices/parrainageSlice";
 import AppAvatar from "../components/user/AppAvatar";
 import colors from "../utilities/colors";
@@ -24,7 +29,7 @@ function CompteParrainScreen({navigation}) {
 
     const dispatch = useDispatch()
     const store = useStore()
-    const {userRoleAdmin} = useAuth()
+    const {userRoleAdmin, formatPrice} = useAuth()
 
     const user = useSelector(state => state.auth.user)
     const comptesParrain = useSelector(state => state.entities.parrainage.comptes)
@@ -33,19 +38,24 @@ function CompteParrainScreen({navigation}) {
     const loading = useSelector(state => state.entities.parrainage.loading)
     const [editQuotiteValue, setEditQuotiteValue] = useState('')
     const [editInitialValue, setEditInitialValue] = useState('')
+    const [parrainageLoading, setParrainageLoading] = useState(false)
 
     const handleCreateParrainCompte = async () => {
-        if(Object.keys(user).length<=0) {
-            Alert.alert('Info', "Vous devez vous connecter avant de creer un compte de parrainage, voulez-vous?"),
+        if(Object.keys(user).length>0) {
+            setParrainageLoading(true)
+            await dispatch(createParrainageCompte({userId: user.id}))
+            setParrainageLoading(false)
+            const error = store.getState().entities.parrainage.error
+            if(error !== null) {
+                alert("Desolé, votre compte n'a pas été créé veuillez reessayer plutard.")
+            } else {
+                alert("Felicitation, vous avez créé votre compte parrainage avec succès.")
+            }
+        }else {
+            Alert.alert('Info', "Vous devez vous connecter avant de creer un compte de parrainage, voulez-vous?",
                 [{text:'oui', onPress: () => navigation.navigate(routes.LOGIN)},
-                    {text: 'non', onPress: () => {return;} }]
-        }
-        await dispatch(createParrainageCompte({userId: user.id}))
-        const error = store.getState().entities.parrainage.error
-        if(error !== null) {
-            alert("Desolé, votre compte n'a pas été créé veuillez reessayer plutard.")
-        } else {
-            alert("Felicitation, vous avez créé votre compte parrainage avec succès.")
+                    {text: 'non', onPress: () => {return;} }])
+
         }
     }
 
@@ -55,7 +65,9 @@ function CompteParrainScreen({navigation}) {
         }
         const solde = compteParrain.initial + compteParrain.gain - compteParrain.depense
         if(Number(editQuotiteValue) > solde) return alert("Vous devez definir une quotité inferieure ou egale à votre fonds disponible")
+        setParrainageLoading(true)
         await dispatch(getEditQuotiteSave({id:compteParrain.id, quotite: editQuotiteValue}))
+        setParrainageLoading(false)
         const error = store.getState().entities.parrainage.error
         if(error !== null) return alert("Impossible d'appliquer la quotité, veuillez reessayer")
         dispatch(getStartQuotiteEdit(compteParrain))
@@ -72,7 +84,9 @@ function CompteParrainScreen({navigation}) {
             id: compteParrain.id,
             initial: Number(editInitialValue)
         }
+        setParrainageLoading(true)
         await dispatch(getInitialEdit(data))
+        setParrainageLoading(false)
         const error = store.getState().entities.parrainage.error
         if(error !== null) return alert('Impossible de mettre votre fonds à jour, veuillez reessayer plutard.')
         alert('Fonds ajouté avec succès.')
@@ -80,34 +94,46 @@ function CompteParrainScreen({navigation}) {
         dispatch(getStartInitialEdit(compteParrain))
     }
 
-    const handleActiveCompte = (compteParrain) => {
-        dispatch(getCompteParrainActivate({id: compteParrain.id}))
-        dispatch(getAllParrains())
+    const handleActiveCompte = async (compteParrain) => {
+        setParrainageLoading(true)
+        await dispatch(getCompteParrainActivate({id: compteParrain.id}))
+        setParrainageLoading(false)
     }
 
-    useEffect(() => {
-        if(Object.keys(user).length > 0 && user.parrainageCompter>0) {
-            dispatch(getUserParrainageCompte({userId: user.id}))
-            dispatch(getUserParrains({userId: user.id}))
+    const getStartedParrainage = useCallback(async () => {
+        setParrainageLoading(true)
+        await dispatch(getUserParrainageCompte({userId: user.id}))
+        setParrainageLoading(false)
+        dispatch(getUserParrains({userId: user.id}))
+        const list = store.getState().entities.parrainage.comptes
+        const userParrainCompte = list.find(compte => compte.UserId === user.id)
+        if(userParrainCompte && userParrainCompte.Commandes){
+            const  parrainsOrders = userParrainCompte.Commandes
+            dispatch(getPopulateParrainsOrders(parrainsOrders))
         }
-        const allParrains = store.getState().entities.parrainage.searchCompteList
-        if(allParrains.length === 0) dispatch(getAllParrains())
+    }, [])
+
+    useEffect(() => {
+        if(Object.keys(user).length>0) {
+            getStartedParrainage()
+        }
     }, [])
 
     return (
         <>
-            <AppActivityIndicator visible={loading}/>
-            {!loading && comptesParrain.length === 0 && <View style={styles.noCompteStyle}>
+            <AppActivityIndicator visible={parrainageLoading}/>
+            {!parrainageLoading && comptesParrain.length === 0 && <View style={styles.noCompteStyle}>
                 <AppText>Vous n'avez pas de compte de parrainage</AppText>
                 <AppButton
+                    style={{width: 300, marginVertical: 20}}
                     iconName='account-plus'
                     title='Créer'
                     onPress={handleCreateParrainCompte}/>
             </View>}
-            {!loading && parrainErreur !== null && <View style={styles.noCompteStyle}>
+            {!parrainageLoading && parrainErreur !== null && <View style={styles.noCompteStyle}>
                 <AppText>Nous n'avons pas joindre le serveur...Veuillez reessayer plutard</AppText>
             </View>}
-            {!loading && comptesParrain.length>0 && <FlatList ItemSeparatorComponent={()=><ItemSeparator/>} data={comptesParrain} keyExtractor={item => item.id.toString()}
+            {!parrainageLoading && comptesParrain.length>0 && <FlatList ItemSeparatorComponent={()=><ItemSeparator/>} data={comptesParrain} keyExtractor={item => item.id.toString()}
                       renderItem={({item}) =>
                           <View style={{paddingTop: 20, backgroundColor: colors.blanc}}>
                               {userRoleAdmin() && <View style={{alignSelf: 'flex-end', marginRight:20}}>
@@ -137,15 +163,14 @@ function CompteParrainScreen({navigation}) {
                               <View style={styles.avatarContainer}>
                                   <View style={styles.avatar}>
                                       <AppAvatar
-                                          loadingContainer={{
-                                              height: 80,
-                                              width: 80,
+                                          showNottif={false}
+                                          otherImageStyle={{
                                               backgroundColor: colors.leger
                                           }}
-                                          loadingStyle={{height: 80, width: 80}}
+                                          imageSize={40}
                                           user={item.User}
                                           onPress={() => navigation.navigate(routes.COMPTE, item.User)}
-                                          otherImageStyle={{width: 80,height: 80,borderRadius: 40}}/>
+                                      />
                                       <AppText style={{fontWeight: 'bold'}}>{item.User.username}</AppText>
                                   </View>
                                   <View>
@@ -223,7 +248,7 @@ function CompteParrainScreen({navigation}) {
                                           <MaterialIcons name="account-balance-wallet" size={40} color={colors.vert} />
                                           <AppText style={{color: colors.vert, fontWeight: 'bold'}}>Solde</AppText>
                                       </View>
-                                      <AppText style={{color: colors.vert, fontSize: 25, fontWeight: 'bold'}}>{item.solde} fcfa</AppText>
+                                      <AppText style={{color: colors.vert, fontSize: 25, fontWeight: 'bold'}}>{formatPrice(item.solde)}</AppText>
                                   </View>
                               </View>
                           </View>

@@ -57,20 +57,11 @@ export default useAuth = () => {
     const initUserDatas =  async () => {
         const connectedUser = store.getState().auth.user
         if(Object.keys(connectedUser).length > 0) {
-            await dispatch(getOrdersByUser())
-            await dispatch(getFacturesByUser())
             await dispatch(getConnectedUserData())
-            await dispatch(getCartItems())
-            await dispatch(getUserParrainageCompte({userId: connectedUser.id}))
-            await dispatch(getUserParrains({userId: connectedUser.id}))
+            dispatch(getCartItems())
+             dispatch(getOrdersByUser())
             dispatch(getUserFavoris())
             dispatch(getAdresse())
-            const list = store.getState().entities.parrainage.comptes
-            const userParrainCompte = list.find(compte => compte.UserId === connectedUser.id)
-            if(userParrainCompte && userParrainCompte.Commandes){
-               const  parrainsOrders = userParrainCompte.Commandes
-                dispatch(getPopulateParrainsOrders(parrainsOrders))
-            }
         }
 
     }
@@ -96,13 +87,6 @@ export default useAuth = () => {
                     } else sorTable.unshift(data[i])
                 }
             }
-        /*if (data && data.length >0) {
-            sorTable.sort((a, b) => {
-                if(a.updatedAt > b.updatedAt) return -1
-                if(a.updatedAt < b.updatedAt) return 1
-                return 0
-            })
-        }*/
         return sorTable
     }
 
@@ -114,18 +98,16 @@ export default useAuth = () => {
     const getStarted = async () => {
         await dispatch(getAllMainData())
         await dispatch(loadCategories())
-        dispatch(loadArticles())
-        dispatch(getAllLocation())
-        dispatch(getAllEspaces())
         dispatch(loadPayements())
         dispatch(loadPlans())
-        dispatch(loadRelais())
-        dispatch(getAllPropositions())
-        dispatch(getAllVilles())
-        dispatch(getTranches())
+        dispatch(loadArticles())
         dispatch(getServices())
-        dispatch(getAllParrains())
+        dispatch(getAllLocation())
+        dispatch(getAllEspaces())
+        dispatch(loadRelais())
+        dispatch(getAllVilles())
         dispatch(getLocalisations())
+        dispatch(getTranches())
     }
 
     return {getStarted,initUserDatas,userRoleAdmin, resetConnectedUserData, formatPrice, formatDate, dataSorter, isValidEmail}

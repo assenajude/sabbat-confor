@@ -37,7 +37,7 @@ function ListeParrainScreen({navigation}) {
     })
     const [searchValue, setSearchValue] = useState('')
     const [originalData, setOriginalData] = useState(listeAllParrains)
-    const [currentData, setCurrentData] = useState(listeAllParrains)
+    const [currentData, setCurrentData] = useState([])
     const [editingCompte, setEditingCompte] = useState(false)
     const [selectedCompte, setSelectedCompte] = useState(null)
 
@@ -126,7 +126,15 @@ function ListeParrainScreen({navigation}) {
         setEditingCompte(true)
     }
 
-
+    const getStarted = useCallback(async () => {
+        await dispatch(getAllParrains())
+        const list = store.getState().entities.parrainage.searchCompteList
+        let newList = list
+        if(Object.keys(user).length >0) {
+            newList = list.filter(item => item.UserId !== user.id)
+        }
+        setCurrentData(newList)
+    }, [])
 
     useEffect(() => {
         if(currentUser.parrainageCompter > 0) {
@@ -135,17 +143,10 @@ function ListeParrainScreen({navigation}) {
         if(editingCompte) {
             updateList(selectedCompte)
         }
-    }, [editingCompte])
+        const unsubscribe = navigation.addListener('focus', () => getStarted())
+        return unsubscribe
+    }, [editingCompte, navigation])
 
-    if(listeAllParrains.length === 0 && parrainageError === null) {
-        return <View style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center'
-        }}>
-            <AppText>Aucun compte de parrainage trouvé</AppText>
-        </View>
-    }
 
     if(parrainageError !== null) {
         return <View style={{
@@ -154,7 +155,7 @@ function ListeParrainScreen({navigation}) {
             alignItems: 'center'
         }}>
             <AppText>Impossible de charger la liste des comptes de parrainage, nous avons rencontré une erreur</AppText>
-            <AppButton width={120} onPress={() => dispatch(getAllParrains())} title='recharger'/>
+            <AppButton style={{alignSelf: 'center'}} onPress={() => dispatch(getAllParrains())} title='recharger'/>
         </View>
     }
 

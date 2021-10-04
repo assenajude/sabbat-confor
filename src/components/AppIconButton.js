@@ -1,25 +1,22 @@
 import React from 'react';
-import {TouchableOpacity, StyleSheet} from "react-native";
-import {MaterialCommunityIcons} from '@expo/vector-icons'
+import {StyleSheet} from "react-native";
 import colors from "../utilities/colors";
+import {IconButton} from "react-native-paper";
 
 
-function AppIconButton({onPress, iconName, iconSize=24, iconColor=colors.dark, buttonContainer}) {
+function AppIconButton({onPress, iconName, iconSize=25, iconColor=colors.dark, buttonContainer}) {
     return (
-        <TouchableOpacity style={[styles.container,buttonContainer]} onPress={onPress}>
-            <MaterialCommunityIcons name={iconName} color={iconColor} size={iconSize}/>
-        </TouchableOpacity>
+        <IconButton
+            onPress={onPress}
+            size={iconSize}
+            style={[styles.container, buttonContainer]}
+            color={iconColor}
+            icon={iconName}
+        />
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        height: 40,
-        width: 40,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors.blanc
-    }
+    container: {backgroundColor: colors.blanc}
 })
 export default AppIconButton;

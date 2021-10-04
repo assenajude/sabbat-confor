@@ -20,7 +20,7 @@ function UserCompteNavigation(props) {
                 <Drawer.Navigator
                     screenOptions={{
                         overlayColor: 'transparent',
-                        drawerStyle: isLargeScreen ? null : { width: '100%' },
+                        drawerStyle: isLargeScreen ? null : { width: '90%' },
                     }}
                     drawerContent={(props) =>
                         <DrawerContent {...props}/>}

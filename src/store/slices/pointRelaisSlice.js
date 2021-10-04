@@ -23,21 +23,31 @@ const relaisSlice = createSlice({
         },
         relaisAdded: (state, action) => {
             state.loading = false
-            state.list.push(action.payload)
+            state.error = null
+            const addedIndex = state.list.findIndex(item => item.id === action.payload.id)
+            let newPoints = state.list
+            if(addedIndex !== -1) {
+                newPoints[addedIndex] = action.payload
+            }else {
+                newPoints.push(action.payload)
+            }
+            state.list = newPoints
         },
         selectedRelais: (state, action) => {
            state.selectedRelais = state.list.find(relais => relais.nom === action.payload)
+        },
+        relaisDeleted: (state, action) => {
+            state.loading = false
+            const newList = state.list.filter(item => item.id !== action.payload.relaisId)
+            state.list = newList
         }
-    },
-    extraReducers: {
-
     }
 
 });
 
 
 export default relaisSlice.reducer;
-const {relaisAdded, relaisReceived, relaisRequested, relaisRequestFailded, selectedRelais} = relaisSlice.actions;
+const {relaisAdded, relaisReceived, relaisRequested, relaisRequestFailded, relaisDeleted} = relaisSlice.actions;
 
 const url = '/pointRelais'
 
@@ -49,16 +59,24 @@ export const loadRelais = () => apiRequest({
     onError: relaisRequestFailded.type
 });
 
+export const deleteOneRelais = (data) => apiRequest({
+    url: url+'/deleteOne',
+    method: 'delete',
+    data,
+    onStart: relaisRequested.type,
+    onSuccess: relaisDeleted.type,
+    onError: relaisRequestFailded.type
+});
 
-export const addRelais = (relais) => dispatch => {
-    dispatch (apiRequest({
-        url,
-        method: 'post',
-        data: relais,
-        onStart: relaisRequested.type,
-        onSuccess: relaisAdded.type,
-        onError: relaisRequestFailded.type
-    }));
 
-}
+export const addRelais = (relais) => apiRequest({
+    url,
+    method: 'post',
+    data: relais,
+    onStart: relaisRequested.type,
+    onSuccess: relaisAdded.type,
+    onError: relaisRequestFailded.type
+})
+
+
 

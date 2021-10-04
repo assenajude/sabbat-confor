@@ -1,5 +1,5 @@
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector, useStore} from 'react-redux'
 import {View, FlatList, StyleSheet, ScrollView, Alert} from 'react-native'
 import CartListFooter from "../components/shoppingCart/CartListFooter";
@@ -24,6 +24,7 @@ import {getPayementActive, getPayementDisabled} from "../store/slices/payementSl
 import ItemSeparator from "../components/list/ItemSeparator";
 import AppIconButton from "../components/AppIconButton";
 import colors from "../utilities/colors";
+import AppButton from "../components/AppButton";
 
 function ShoppingCartScreen({navigation}) {
     const dispatch = useDispatch();
@@ -45,7 +46,7 @@ function ShoppingCartScreen({navigation}) {
                 itemsTransformed.push({
                     id: key,
                     libelle: cartItems[key].designArticle || cartItems[key].libelleLocation || cartItems[key].libelle ,
-                    image:cartItems[key].CartItem.itemType === 'article'? cartItems[key].imagesArticle[0]:cartItems[key].CartItem.itemType ==='location'?cartItems[key].imagesLocation[0]: cartItems[key].imagesService[0],
+                    image:cartType === 'article'? cartItems[key].imagesArticle[0]:cartType ==='location'?cartItems[key].imagesLocation[0]: cartItems[key].imagesService[0],
                     quantite: cartItems[key].CartItem.quantite,
                     frequence: cartItems[key].frequenceLocation || '',
                     prix: cartItems[key].CartItem.prix || 0,
@@ -55,7 +56,8 @@ function ShoppingCartScreen({navigation}) {
                     montantMax: cartItems[key].montantMax || 0,
                     typeCmde: cartItems[key].CartItem.itemType,
                     aide: cartItems[key].aide || '',
-                    shoppingCartId: cartItems[key].CartItem.shoppingCartId
+                    shoppingCartId: cartItems[key].CartItem.shoppingCartId,
+                    isDispo: cartType === 'article'? cartItems[key].qteStock > 0 : cartType === 'location'?cartItems[key].qteDispo > 0 : cartItems[key].isDispo === true
                 })
             };
         }
@@ -82,6 +84,7 @@ function ShoppingCartScreen({navigation}) {
     const showTime = () => {
         showMode('time')
     }
+
 
     const handleDeleteItem = (item) => {
         Alert.alert('Alert', "Voulez-vous supprimer cet article de votre panier?", [{
@@ -133,6 +136,7 @@ function ShoppingCartScreen({navigation}) {
         return quantite
     }
 
+
     const checkIfCartIsNotOutOfStock = () => {
         let cartIsvalide = 0
         items.forEach(item => {
@@ -142,6 +146,7 @@ function ShoppingCartScreen({navigation}) {
         if(cartIsvalide>0) return true
         return false
     }
+
 
     const handleGetOrder = () => {
         dispatch(addToOrder(items, itemsLenght, totalAmount, cartType))
@@ -163,44 +168,46 @@ function ShoppingCartScreen({navigation}) {
         </View>
     }
 
+
     if (cartType === 'service') {
         return (
             <>
                 <AppActivityIndicator visible={isLoading}/>
-            <ScrollView>
+            <ScrollView contentContainerStyle={{
+                paddingBottom: 50
+            }}>
                 <CartListHeader min={true} max={true}/>
-               <CartItem  showItemDetails={() => {
+               <CartItem
+                   notInStock={items[0].isDispo === false}
+                   showItemDetails={() => {
                    navigation.navigate('ServiceDetailScreen', items[0])
-               }} deleteItem={() => handleDeleteItem(items[0])} designation={items[0].libelle} source={{uri: items[0].image}}
-               min={true} max={true} montantMin={items[0].montantMin} montantMax={items[0].montantMax} icon={true}/>
+               }} deleteItem={() => handleDeleteItem(items[0])}
+                   designation={items[0].libelle}
+                   source={{uri: items[0].image}}
+                   min={true}
+                   max={true}
+                   montantMin={items[0].montantMin}
+                   montantMax={items[0].montantMax} icon={true}/>
                 <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                    marginHorizontal: 20
+                    marginHorizontal: 20,
+                    marginVertical: 40
                 }}>
-                    <AppText style={{fontSize: 18, fontWeight: 'bold'}}>Montant à payer: </AppText>
                     <AppInput
-                        inputContainerStyle={{
-                        width: 120,
-                            borderWidth: 0.5,
-                            borderRadius:20
-                    }}
-                        otherStyle={{
-                        height: 40
-                    }} placeholder='montant' keyboardType='number-pad' value={serviceMontant} onChangeText={(newValue) => {
+                        title='Montant à payer'
+                        keyboardType='number-pad'
+                        value={serviceMontant}
+                        onChangeText={(newValue) => {
                         setServiceMontant(newValue)
                     }
                     }/>
-                    <View>
-                        <AppIconButton
-                            onPress={() => {
-                                const montant = Number(serviceMontant)
-                                handleUpdateMontant(items[0],montant)
-                            }} iconSize={40}
-                            iconName='check-circle-outline'
-                            iconColor={colors.bleuFbi}/>
-                    </View>
+                    <AppButton
+                        onPress={() => {
+                            const montant = Number(serviceMontant)
+                            handleUpdateMontant(items[0],montant)
+                        }}
+                        style={{width: 300, alignSelf: 'center'}}
+                        title='Valider le montant'
+                    />
                 </View>
                 <View style={{flexDirection: 'row',
                     alignItems: 'center',
@@ -214,7 +221,10 @@ function ShoppingCartScreen({navigation}) {
                         <AppText style={{fontSize: 18, fontWeight: 'bold'}}>{dayjs(selectedDate).format('DD/MM/YYYY HH:mm:ss')}</AppText>
                     </View>
                 </View>
-               <CartListFooter  readyToGo={itemsLenght>=1 && totalAmount>0} getOrder={handleGetOrder} totalAmount={totalAmount}/>
+               {items.some(item => item.isDispo === true) && <CartListFooter
+                   readyToGo={itemsLenght>=1 && totalAmount>0}
+                   getOrder={handleGetOrder}
+                   totalAmount={totalAmount}/>}
             </ScrollView>
                 </>
         )
@@ -223,13 +233,16 @@ function ShoppingCartScreen({navigation}) {
     return (
         <>
             <AppActivityIndicator visible={isLoading}/>
-       <FlatList ListHeaderComponent={() => <CartListHeader prix={true} quantite={true} montant={true}/>}
-                 data={items} keyExtractor={(item) => item.id.toString()}
+       <FlatList
+           ListHeaderComponent={() => <CartListHeader prix={true} quantite={true} montant={true}/>}
+           data={items} keyExtractor={(item) => item.id.toString()}
                  ItemSeparatorComponent={ItemSeparator}
                  renderItem={({item}) =>
                      <CartItem showItemDetails={() => {
                          item.typeCmde === 'article'?navigation.navigate({name:routes.ARTICLE_DETAIL, params: {...item, designArticle:item.libelle}}):navigation.navigate(routes.LOCATION_DETAIL, item)
-                     }} itemType={cartType} caution={item.caution} frequence={item.frequence} notInStock={getQuantiteInStock(item) === 0} deleteItem={() => handleDeleteItem(item)} quantite={true} montant={true} price={true}  designation={item.libelle} itemQuantite={item.quantite}
+                     }} itemType={cartType} caution={item.caution} frequence={item.frequence}
+                               notInStock={getQuantiteInStock(item) <= 0}
+                               deleteItem={() => handleDeleteItem(item)} quantite={true} montant={true} price={true}  designation={item.libelle} itemQuantite={item.quantite}
                                quantityDecrement={() => {dispatch(getItemQtyDecrement(item))}}
                                quantityIncrement={() => {dispatch(getItemQtyIncrement(item))}}
                                source={{uri: item.image}} itemBtnFirst='Détail'
@@ -238,10 +251,11 @@ function ShoppingCartScreen({navigation}) {
                               activeDecrement={cartType == 'article'} disabledDecrement={item.quantite === 1}
                                activeIncrement={cartType == 'article'} disabledIncrement={item.quantite === getQuantiteInStock(item)}/>}
                  ListFooterComponent={() =>
+                     items.some(item => item.isDispo === true)?
                      <CartListFooter
                          totalAmount={totalAmount}
                          getOrder={handleGetOrder}
-                         readyToGo={itemsLenght>=1 && totalAmount>0 && checkIfCartIsNotOutOfStock()}/>}
+                         readyToGo={itemsLenght>=1 && totalAmount>0 && checkIfCartIsNotOutOfStock()}/> : null}
               />
 
         </>

@@ -25,7 +25,27 @@ function EditUserImagesScreen(props) {
     const [versoModal, setVersoModal] = useState(false)
     const [uploadModal, setUploadModal] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
+    const [changingAvatar,setChangingAvatar] = useState(false)
+    const [changingRecto, setChangingRecto] = useState(false)
+    const [changingVerso, setChangingVerso] = useState(false)
 
+    const handleChangeAvatar = (avatar) => {
+        setSelectedAvatar(avatar)
+        setAvatarModal(false)
+        if(avatar) setChangingAvatar(true)
+    }
+
+    const handleChangeVerso = (verso) => {
+        setSelectedVerso(verso)
+        setVersoModal(false)
+        if(verso) setChangingVerso(true)
+    }
+
+    const handleChangeRecto = (recto) => {
+        setSelectedRecto(recto)
+        setRectoModal(false)
+        if(recto) setChangingRecto(true)
+    }
 
     const deleteAvatar = () => {
         Alert.alert('Alert', "Voulez-vous supprimer votre photo de profile?",
@@ -65,7 +85,7 @@ function EditUserImagesScreen(props) {
                 alert('votre avatar a été mis à jour avec succès')
             }
         }
-
+        setChangingAvatar(false)
     }
 
     const deletePiece = () => {
@@ -119,6 +139,8 @@ function EditUserImagesScreen(props) {
                 alert('Votre piece a été mise à jour avec succès')
             }
         }
+        setChangingVerso(false)
+        setChangingRecto(false)
     }
     return (
         <>
@@ -133,25 +155,18 @@ function EditUserImagesScreen(props) {
                     </View>
                     <ProfileImagePicker
                         imageLabel='aucune image de profile'
-                        imageModalVisible={avatarModal} imageUrl={{uri:selectedAvatar.url?selectedAvatar.url:user.avatar}}
+                        imageModalVisible={avatarModal}
+                        imageUrl={selectedAvatar.url?{uri: selectedAvatar.url}:user.avatar?{uri: user.avatar} : null}
                         showImageModal={() => setAvatarModal(true)}
                         dismissImageModal={() => setAvatarModal(false)}
-                        deleteImage={deleteAvatar} onChangePhoto={(avatar)=>{
-                            setSelectedAvatar(avatar)
-                        setAvatarModal(false)
-                    }}
-                        onChangeImage={(avatar) => {
-                            setSelectedAvatar(avatar)
-                            setAvatarModal(false)
-                        }}
+                        deleteImage={deleteAvatar} onChangePhoto={(avatar)=> handleChangeAvatar(avatar)}
+                        onChangeImage={(avatar) => handleChangeAvatar(avatar)}
                         deleteExistImage={deleteAvatar}
                         otherImageStyle={{borderRadius: 40}}/>
-                         <AppButton
-                             height={40}
-                             width={130}
-                             title='valider avatar'
+                        {changingAvatar && <AppButton
+                             title="valider l'avatar"
                              style={{marginVertical: 20}}
-                             onPress={handleSaveAvatar}/>
+                             onPress={handleSaveAvatar}/>}
                 </View>
                 <View>
                 </View>
@@ -165,38 +180,26 @@ function EditUserImagesScreen(props) {
                          showImageModal={() => setRectoModal(true)}
                          imageLabel='piece recto'
                          dismissImageModal={() =>setRectoModal(false)}
-                         imageUrl={{uri: selectedRecto.url?selectedRecto.url: connectedUserInfo.pieceIdentite?connectedUserInfo.pieceIdentite[0]:undefined}}
-                         onChangePhoto={(recto) => {
-                             setSelectedRecto(recto)
-                             setRectoModal(false)
-                         } }
-                         onChangeImage={(recto) => {
-                             setSelectedRecto(recto)
-                             setRectoModal(false)
-                         }}
+                         imageUrl={selectedRecto.url?{uri: selectedRecto.url}: connectedUserInfo.pieceIdentite?{uri: connectedUserInfo.pieceIdentite[0]} : null}
+                         onChangePhoto={(recto) => handleChangeRecto(recto)}
+                         onChangeImage={(recto) => handleChangeRecto(recto)}
                          deleteImage={deletePiece}
                          deleteExistImage={deleteRecto}/>
 
                     <ProfileImagePicker
                         imageModalVisible={versoModal}
-                        imageUrl={{uri: selectedVerso.url?selectedVerso.url:connectedUserInfo.pieceIdentite?connectedUserInfo.pieceIdentite[1]:undefined}}
-                        onChangeImage={(verso) => {
-                            setSelectedVerso(verso)
-                            setVersoModal(false)
-                        }} onChangePhoto={(verso) => {
-                            setSelectedVerso(verso)
-                        setVersoModal(false)
-                    }}
-                        showImageModal={() => setVersoModal(true)} dismissImageModal={() => setVersoModal(false)}
+                        imageUrl={selectedVerso.url?{uri: selectedVerso.url}:connectedUserInfo.pieceIdentite?{uri: connectedUserInfo.pieceIdentite[1]} : null}
+                        onChangeImage={(verso) => handleChangeVerso(verso)}
+                        onChangePhoto={(verso) => handleChangeVerso(verso)}
+                        showImageModal={() => setVersoModal(true)}
+                        dismissImageModal={() => setVersoModal(false)}
                         imageLabel='piece verso' deleteExistImage={deleteVerso} deleteImage={deletePiece}/>
                     </View>
-                    <AppButton
-                        height={40}
-                        width={150}
+                    {changingVerso && changingRecto && <AppButton
                         title='Valider la pièce'
                         style={{
                             marginVertical: 20
-                        }} onPress={handleSavePiece}/>
+                        }} onPress={handleSavePiece}/>}
                 </View>
             </View>
         </ScrollView>

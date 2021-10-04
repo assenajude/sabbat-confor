@@ -2,9 +2,9 @@ import {useDispatch, useSelector, useStore} from "react-redux";
 import useAuth from "./useAuth";
 import dayjs from "dayjs";
 import {Alert, ToastAndroid} from "react-native";
-import {getAllMainData, getItemDeleted} from "../store/slices/mainSlice";
+import { getItemDeleted} from "../store/slices/mainSlice";
 import {deleteOneService} from "../store/slices/serviceSlice";
-import {loadCategories} from "../store/slices/categorieSlice";
+import {getToggleFavorite} from "../store/slices/userFavoriteSlice";
 
 let useMainFeatures;
 export default useMainFeatures = () => {
@@ -18,7 +18,6 @@ export default useMainFeatures = () => {
     const listArticles = useSelector(state => state.entities.article.availableArticles)
     const localisations = useSelector(state => state.entities.localisation.list)
     const locations = useSelector(state => state.entities.location.list)
-
 
     const getCategorieInfos = (categorie) => {
         if(categorie) {
@@ -201,5 +200,13 @@ export default useMainFeatures = () => {
         return selectedLocations
     }
 
-    return {getLocalisationLocations,getLocalisationLocationsLength, getPromoLeftTime,getCategorieInfos, getProductsByCategories, getBestSellerArticles, getFlashPromo, isProductAvailble, handleDeleteProduct}
+    const toggleFavorite = async (item) => {
+        await dispatch(getToggleFavorite(item))
+        const error = store.getState().entities.userFavorite.error
+        if(error !== null) {
+            return alert("Nous n'avons pas pu ajouter le produit à votre favoris, veuillez reessayer plutard.")
+        }
+        ToastAndroid.showWithGravity("Produit ajouté à vos favoris", ToastAndroid.LONG, ToastAndroid.CENTER)
+    }
+    return {toggleFavorite,getLocalisationLocations,getLocalisationLocationsLength, getPromoLeftTime,getCategorieInfos, getProductsByCategories, getBestSellerArticles, getFlashPromo, isProductAvailble, handleDeleteProduct}
 }

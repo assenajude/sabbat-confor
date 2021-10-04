@@ -1,148 +1,157 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Image, TouchableWithoutFeedback, TouchableOpacity} from "react-native";
+import {View, StyleSheet, Alert} from "react-native";
+import LottieView from 'lottie-react-native'
+import {useNavigation} from '@react-navigation/native'
 import AppText from "./AppText";
 import colors from "../utilities/colors";
 import useAuth from "../hooks/useAuth";
-import AppLottieViewAnim from "./AppLottieViewAnim";
 import AppIconButton from "./AppIconButton";
 import useMainFeatures from "../hooks/useMainFeatures";
 import useManageUserOrder from "../hooks/useManageUserOrder";
 import AddToCartButton from "./shoppingCart/AddToCartButton";
+import {Card, Avatar} from "react-native-paper";
+import useItemReductionPercent from "../hooks/useItemReductionPercent";
+import {useSelector} from "react-redux";
+import OrderHelpModal from "./OrderHelpModal";
+import AppActivityIndicator from "./AppActivityIndicator";
+import dayjs from "dayjs";
+import routes from "../navigation/routes";
 
-function AppCardNew({source, description, itemReductionPercent, isFavorite, titleLabel,itemType,editItem,
-                        toggleFavorite, aideInfo,firstTitle, secondTitle, notInStock, deleteItem,flashEnded,promoting,
-                        addToCart, viewDetails, minAmount, maxAmount, showHelpInfo, nextPromo, debutPromo, finPromo}) {
+function AppCardNew({item={}, addToCart, viewDetails,deleteItem, editItem}) {
+    const navigation = useNavigation()
     const {userRoleAdmin, formatPrice, formatDate} = useAuth()
+    const {getPromoLeftTime, toggleFavorite} = useMainFeatures()
     const {secsToTime} = useManageUserOrder()
-
-    const {getPromoLeftTime} = useMainFeatures()
-    const [currentTime, setCurrentTime] = useState(getPromoLeftTime(finPromo))
-    const notInPromo = nextPromo || flashEnded
+    const {getReductionPercent} = useItemReductionPercent()
+    const userArticlesFavorites = useSelector(state => state.entities.userFavorite.articleFavoris)
+    const userLocationsFavorites = useSelector(state => state.entities.userFavorite.locationFavoris)
+    const user = useSelector(state => state.auth.user)
+    const [currentTime, setCurrentTime] = useState(getPromoLeftTime(item.finFlash))
     const [isImageLoading, setIsImageLoading] = useState(true)
+    const [helpModalVisible, setHelpModalVisible] = useState(false)
+    const [visible, setVisible] = useState(false)
+
+    const productType = item.Categorie.typeCateg
+    const reductionPercent = productType !== 'service'?getReductionPercent(item) : null
+    const userProductsFavorites = productType === 'article'?userArticlesFavorites : userLocationsFavorites
+    const promotingItem = () => {
+        let promoting = false
+        if(productType !== 'service') promoting = item.flashPromo && dayjs(item.debutFlash)<=dayjs() && dayjs(item.finFlash)>dayjs()
+        return promoting
+    }
+
+    const isItemFavorite = userProductsFavorites.some(fav => fav.id === item.id)
+    const notInStock = productType === 'article'?item.qteStock <= 0 : productType === 'location'? item.qteDispo <= 0 : !item.isDispo
+
+    const toggleItemFavorite = async () => {
+        const isUser = Object.keys(user).length>0
+        if(!isUser) {
+            return  Alert.alert(
+                "Alert",
+                "Vous devez vous connecter pour ajouter le produit à vos favoris.",
+                [
+                    {
+                        text: "Plutard",
+                        onPress: () => {return;},
+                        style: "cancel"
+                    },
+                    { text: "connexion", onPress: () => {navigation.navigate(routes.LOGIN)} }
+                ]
+            );
+        }
+        setVisible(true)
+        await toggleFavorite(item)
+        setVisible(false)
+    }
+
+    const nextPromo = item.flashPromo && dayjs(item.debutFlash)>dayjs()
+    const flashEnded= item.flashPromo && dayjs(item.finFlash)<= dayjs()
+    const notInPromo = nextPromo || flashEnded
+
 
 
   useEffect(() => {
       const promoTimer = setInterval(() => {
-          const newTime = getPromoLeftTime(finPromo)
+          const newTime = getPromoLeftTime(item.finFlash)
           setCurrentTime(newTime)
       }, 1000)
       return () => clearInterval(promoTimer)
   }, [])
     return (
-        <View style={styles.container}>
-                {promoting && <AppText style={{color: colors.or, fontSize: 13}}>{secsToTime(currentTime)}</AppText>}
-            <View>
-                <View>
-                <TouchableWithoutFeedback onPress={viewDetails}>
-                    <Image
-                        onLoadEnd={() => setIsImageLoading(false)}
-                        resizeMode='contain'
-                        style={styles.imageStyle}
-                        source={source}/>
-                </TouchableWithoutFeedback>
-                    {isImageLoading &&
-                    <View style={styles.imageLoading}>
-                        <AppLottieViewAnim
-                            lottieStyle={{
-                                height: 200,
-                                width: 200,
-                                left: -30,
-                                top:20,
-                            }}
-                            lottieSource={require('../assets/animations/image-loading')}
-                            lottieLoop={true}
-                            lottieAutoPlay={true}/>
-                    </View>}
-                </View>
-                <View>
-                <View style={styles.description}>
-                    <AppText lineNumber={2}>{description}</AppText>
-                </View>
-                 {itemType !=='service' && <View style={styles.title}>
-                        <AppText style={{fontWeight: 'bold'}}>{titleLabel}</AppText>
-                     <View>
-                            <AppText style={{color: colors.rougeBordeau}}>{formatPrice(firstTitle)}</AppText>
-                            <AppText style={styles.secondTitle}>{formatPrice(secondTitle)}</AppText>
-                     </View>
-                 </View>}
-                 {itemType === 'service' && <View style={{
-                     alignItems: 'center'
-                 }}>
-                     <View style={{
-                         flexDirection: 'row'
-                     }}>
-                         <AppText style={{fontWeight: 'bold'}}>Minimum:</AppText>
-                         <AppText>{formatPrice(minAmount)}</AppText>
-                     </View>
-
-                     <View style={{
-                         flexDirection: 'row'
-                     }}>
-                         <AppText style={{fontWeight: 'bold'}}>Maximum:</AppText>
-                         <AppText>{formatPrice(maxAmount)}</AppText>
-                     </View>
-                 </View>}
-                 <AddToCartButton
-                     style={{
-                         alignSelf: 'center',
-                         marginVertical: 20
-                     }}
-                     onPress={addToCart}
-                     label={itemType === 'location'?'Louer' : itemType === 'service'?'Utiliser': 'Acheter'}
-                 />
-                </View>
-            </View>
-            {itemType !== 'service' && itemReductionPercent>0  && <View style={styles.percent}>
-                <AppText style={styles.percentText}>-{itemReductionPercent}%</AppText>
+        <>
+            <AppActivityIndicator visible={visible}/>
+        <Card
+            mode='elevated'
+            onPress={!notInStock && !notInPromo?viewDetails : null}
+            elevation={5} style={styles.card}>
+            {promotingItem() && <Card.Title
+                subtitleStyle={{alignSelf: 'center', color: colors.rougeBordeau}}
+                subtitle={secsToTime(currentTime)}
+            />}
+            <Card.Cover
+                onLoadEnd={() => setIsImageLoading(false)}
+                style={[styles.cover, {marginTop: promotingItem()?0 : 40}]}
+                source={{uri: productType==='article'?item.imagesArticle[0]:productType==='location'?item.imagesLocation[0] : item.imagesService[0]}}/>
+            {isImageLoading &&
+            <View style={styles.imageLoading}>
+                <LottieView
+                    lottieStyle={{
+                        height: 100,
+                        width: 300,
+                    }}
+                    source={require('../assets/animations/image-loading')}
+                    loop={true}
+                    autoPlay={true}/>
             </View>}
-            {itemType !== 'service' &&
-                <AppIconButton
-                    iconSize={30}
-                    iconColor={colors.dark}
-                    onPress={toggleFavorite}
-                    buttonContainer={styles.favorite}
-                    iconName={isFavorite?'heart':'heart-outline'}
-                    />}
-            {itemType !== 'service' && aideInfo &&
-                <AppIconButton
-                    iconSize={30}
-                    onPress={showHelpInfo}
-                    iconName='information'
-                    iconColor={colors.dark}
-                    buttonContainer={styles.aide}/>
+                {reductionPercent>0  &&
+            <Avatar.Text
+                style={styles.percent}
+                labelStyle={styles.percentText}
+                label={`-${reductionPercent}%`} size={40}/>
             }
-            {notInStock && <View style={styles.notInStock}>
-                {itemType !== 'service' && <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>Rupture de stock</AppText>}
-                {itemType === 'service' && <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>Service non disponible</AppText>}
-                {userRoleAdmin() && <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center'
-                }}>
-                    <AppIconButton
-                        iconName='delete-forever'
-                        buttonContainer={{
-                            backgroundColor: colors.rougeBordeau
-                        }}
-                        onPress={deleteItem}
-                    />
-                    <AppIconButton
-                        iconName='circle-edit-outline'
-                        onPress={editItem}
-                        buttonContainer={{
-                            marginLeft: 30,
-                            backgroundColor: colors.bleuFbi
-                        }}
-                    />
-                </View>}
+            {productType !== 'service' &&
+            <View style={styles.aideAndFavorite}>
+                <AppIconButton
+                    iconSize={30}
+                    onPress={() => setHelpModalVisible(true)}
+                    iconName='information'
+                />
+                <AppIconButton
+                    iconSize={30}
+                    onPress={toggleItemFavorite}
+                    iconName={isItemFavorite?'heart':'heart-outline'}
+                />
             </View>}
-            {notInPromo && <View  style={styles.promo}>
-                {nextPromo && <View style={{
-                    marginTop: 100
-                }}>
+                <Card.Title
+                title={productType === 'article'?item.designArticle : productType === 'location'? item.libelleLocation : item.libelle}
+                subtitle={productType === 'article'?item.descripArticle : productType === 'location'? item.descripLocation : item.description}
+                subtitleNumberOfLines={2}
+            />
+            {productType !=='service' &&
+            <View style={styles.title}>
+                    <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>{formatPrice(productType === 'article'?item.prixPromo : item.coutPromo)}</AppText>
+                    <AppText style={styles.secondTitle}>{formatPrice(productType === 'article'?item.prixReel : item.coutReel)}</AppText>
+                {productType === 'location' && <AppText>/{item.frequenceLocation.toLowerCase() === 'mensuelle'?'Mois' : 'Jour'}</AppText>}
+            </View>}
+            {productType === 'service' &&
+            <View style={styles.title}>
+                    <AppText>{formatPrice(item.montantMin)}</AppText>
+                <AppText> - </AppText>
+                    <AppText>{formatPrice(item.montantMax)}</AppText>
+            </View>}
+            <Card.Actions style={styles.actions}>
+                <AddToCartButton
+                    onPress={addToCart}
+                    label={productType === 'article'?'Acheter' : productType === 'location'?'Louer' : 'Demander'}/>
+            </Card.Actions>
+            {notInPromo &&
+            <View  style={styles.promo}>
+                {nextPromo &&
+                <View>
                     <AppText style={{fontWeight: 'bold'}}>Flash promo du</AppText>
-                    <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>{formatDate(debutPromo)}</AppText>
+                    <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>{formatDate(item.debutFlash)}</AppText>
                     <AppText style={{fontWeight: 'bold'}}>au</AppText>
-                    <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>{formatDate(finPromo)}</AppText>
+                    <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>{formatDate(item.finFlash)}</AppText>
                 </View>}
                 {flashEnded && <View style={{
                     marginTop: 100
@@ -150,85 +159,42 @@ function AppCardNew({source, description, itemReductionPercent, isFavorite, titl
                     <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>Flash promo terminé.</AppText>
                 </View>}
             </View>}
+            {notInStock && <View style={styles.notInStock}>
+                {productType !== 'service' && <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>Rupture de stock</AppText>}
+                {productType === 'service' && <AppText style={{color: colors.rougeBordeau, fontWeight: 'bold'}}>Service non disponible</AppText>}
+            </View>}
             {userRoleAdmin() && <View style={{
-                alignItems: 'center',
-                alignSelf: 'center',
                 flexDirection: 'row',
-                marginVertical: 10
+                alignSelf: 'center'
             }}>
                 <AppIconButton
                     iconColor={colors.blanc}
-                    buttonContainer={{
-                        backgroundColor: colors.rougeBordeau,
-                    }}
                     iconName='delete-forever'
-                    onPress={deleteItem}/>
+                    buttonContainer={{
+                        backgroundColor: colors.rougeBordeau
+                    }}
+                    onPress={deleteItem}
+                />
                 <AppIconButton
                     iconColor={colors.blanc}
-                    buttonContainer={{
-                        backgroundColor: colors.bleuFbi,
-                        marginLeft: 30
-                    }}
                     iconName='circle-edit-outline'
                     onPress={editItem}
+                    buttonContainer={{
+                        marginLeft: 30,
+                        backgroundColor: colors.bleuFbi
+                    }}
                 />
             </View>}
-        </View>
+        </Card>
+            {productType !== 'service' && <OrderHelpModal
+                selectedSource={{uri: productType === 'article'?item.imagesArticle[0] : item.imagesLocation[0]}}
+                closeModal={() => setHelpModalVisible(false)}
+                visible={helpModalVisible}/>}
+        </>
     );
 }
 
 const styles = StyleSheet.create({
-    aide: {
-        position: 'absolute',
-        right: 80,
-        top: 5,
-        marginHorizontal: 20
-    },
-    bottomContainer: {
-        position: 'absolute',
-        bottom: 10,
-    },
-    bottomInfo: {
-      flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems:'center',
-        marginHorizontal: 20,
-        marginVertical: 10
-    },
-    container: {
-        alignSelf: 'center',
-      justifyContent: 'flex-start',
-        width:360,
-        height: 'auto',
-        marginVertical: 15,
-        backgroundColor: colors.blanc,
-        padding: 5,
-        borderRadius:10,
-    },
-    cardHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-        marginVertical: 10,
-        marginHorizontal: 10
-    },
-    description: {
-        width: '80%',
-        marginTop: -5,
-        alignSelf: 'center'
-    },
-    favorite:{
-        position: 'absolute',
-        right: 10,
-        top: 5,
-        marginHorizontal: 20
-    },
-    imageStyle: {
-        height: 250,
-        width: 350,
-        overflow: 'hidden',
-        marginVertical: 20,
-        top: 20
-    },
     notInStock: {
         position: 'absolute',
         justifyContent: 'center',
@@ -239,21 +205,23 @@ const styles = StyleSheet.create({
         zIndex: 1,
         backgroundColor: colors.blanc
     },
-    percent:{
-        position:'absolute',
-        left: 10,
-        top:10,
-        marginHorizontal: 20
+    percent: {
+        position: 'absolute',
+        left: 5,
+        top: 5,
+        backgroundColor: colors.blanc
     },
     imageLoading: {
       position: 'absolute',
-      width: 350,
-      height: 300,
+      width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+      height:250,
         backgroundColor: colors.blanc
     },
     percentText: {
-        color: colors.rougeBordeau,
-        fontSize: 18
+        fontSize: 15,
+        color: colors.rougeBordeau
     },
     promo: {
         height: '100%',
@@ -264,13 +232,33 @@ const styles = StyleSheet.create({
         paddingBottom: -20
     },
     secondTitle: {
-        textDecorationLine: 'line-through',
-        marginTop: -10
+        textDecorationLine: 'line-through'
     },
     title: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
+        alignItems: 'center',
+      marginHorizontal: 10
     },
+    card: {
+        backgroundColor: colors.blanc,
+        marginVertical: 20,
+        marginHorizontal: 10
+    },
+    cover: {
+        paddingBottom: 20,
+        paddingHorizontal: 20,
+        backgroundColor: colors.blanc,
+    },
+    actions: {
+        justifyContent: 'center',
+        marginVertical: 20
+    },
+    aideAndFavorite: {
+        position: 'absolute',
+        right: 5,
+        top: -5,
+        flexDirection: 'row',
+        alignItems: 'center'
+    }
 })
 export default AppCardNew;

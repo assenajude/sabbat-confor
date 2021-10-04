@@ -1,16 +1,25 @@
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {View, StyleSheet, FlatList} from "react-native";
 import ListFooter from "../components/list/ListFooter";
 import {useDispatch, useSelector} from "react-redux";
 import PropositionItem from "../components/proposition/PropositionItem";
 import AppText from "../components/AppText";
-import {getSelectedProposition} from "../store/slices/propositionSlice";
+import {getAllPropositions, getSelectedProposition} from "../store/slices/propositionSlice";
 
 function PropositionScreen({navigation}) {
     const dispatch = useDispatch()
     const user = useSelector(state => state.auth.user)
     const listProposition = useSelector(state => state.entities.proposition.list)
     const isUser = Object.keys(user).length > 0
+
+    const getStated = useCallback(async () => {
+        await dispatch(getAllPropositions())
+
+    }, [])
+
+    useEffect(() => {
+        getStated()
+    }, [])
 
 
     return (
@@ -39,20 +48,13 @@ function PropositionScreen({navigation}) {
             }}>
                 <AppText>Aucune proposition trouvée..</AppText>
             </View>}
-            {isUser && <View style={styles.addNewButton}>
-            <ListFooter  onPress={() => navigation.navigate('AccueilNavigator',{screen: 'NewPropositionScreen', params: {mode: 'add'} })}/>
-            </View>}
+            {isUser &&
+            <ListFooter
+                onPress={() => navigation.navigate('AccueilNavigator',{screen: 'NewPropositionScreen', params: {mode: 'add'} })}/>
+            }
         </>
     );
 }
 
-const styles = StyleSheet.create({
-
-    addNewButton: {
-        position: 'absolute',
-        right: 20,
-        bottom: 40
-    }
-})
 
 export default PropositionScreen;

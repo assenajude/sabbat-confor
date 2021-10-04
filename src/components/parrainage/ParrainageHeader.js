@@ -10,11 +10,11 @@ function ParrainageHeader({parrainUser, ownerUsername, ownerEmail, getUserProfil
             marginVertical: 10,
         }}>
             <View style={styles.headerContainer}>
-                <AppAvatar
+                {parrainUser && <AppAvatar
                     user={parrainUser}
                     showNottif={false}
                     onPress={getUserProfile}
-                />
+                />}
                 <View style={{
                     alignItems: 'flex-start',
                 }}>

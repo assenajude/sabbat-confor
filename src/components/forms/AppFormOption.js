@@ -60,7 +60,10 @@ function AppFormOption({name}) {
                 }} validationSchema={optionValideSchema} onSubmit={handleSaveOption}>
                     <AppFormField title='Libellé' name='libelle'/>
                     <AppFormField title='Valeur' name='value'/>
-                    <AppSubmitButton title="Ajouter l'option"/>
+                    <AppSubmitButton style={{
+                        alignSelf: 'center',
+                        marginVertical: 10
+                    }} title="Ajouter l'option"/>
                 </AppForm>
                 <AppButton
                     style={{alignSelf: 'flex-start'}}
@@ -70,6 +73,9 @@ function AppFormOption({name}) {
             </View>}
             {!newMode && optionsTab.length < 5 &&
                 <AppButton
+                    style={{
+                        alignSelf: 'flex-start'
+                    }}
                     onPress={() => setNewMode(!newMode)}
                     title='option'
                     iconName='plus'

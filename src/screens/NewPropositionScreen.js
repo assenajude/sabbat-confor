@@ -103,7 +103,8 @@ function NewPropositionScreen({navigation, route}) {
             <AppUploadProgress startProgress={propUploadModal} progress={propUploadProgress} dismissUploadModal={() => setPropUploadModal(false)}/>
         <ScrollView>
             <View style={{margin: 10}}>
-           <AppForm validationSchema={propositionValidSchema} initialValues={{
+           <AppForm
+               validationSchema={propositionValidSchema} initialValues={{
                designation: selected.designation,
                descriptionList: selected.description || [],
                images: selected.images || [],
@@ -118,7 +119,11 @@ function NewPropositionScreen({navigation, route}) {
                {userRoleAdmin() && mode==='edit' && <AppFormSwitch name='isOk' title='is Ok?'/>}
                {userRoleAdmin() && mode==='edit' && <AppFormField name='idReference' title='Id de la reference'/>}
                {userRoleAdmin() && mode==='edit' && <AppFormField name='type' title='Type de la proposition'/>}
-               <AppSubmitButton title='Proposer'/>
+               <AppSubmitButton style={{
+                   alignSelf: 'center',
+                   marginVertical: 40,
+                   width: 300
+               }} title='Proposer'/>
            </AppForm>
 
             </View>

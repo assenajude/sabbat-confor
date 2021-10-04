@@ -20,9 +20,6 @@ import AppModePayement from "../components/AppModePayement";
 import ParrainageHeader from "../components/parrainage/ParrainageHeader";
 import useAuth from "../hooks/useAuth";
 import {getConnectedUserData} from "../store/slices/userProfileSlice";
-import {loadArticles} from "../store/slices/articleSlice";
-import {getAllLocation} from "../store/slices/locationSlice";
-import {getServices} from "../store/slices/serviceSlice";
 import {getAllMainData} from "../store/slices/mainSlice";
 import OrderSuccessModal from "../components/order/OrderSuccessModal";
 
@@ -43,17 +40,12 @@ function OrderScreen({navigation}) {
     const [successVisible, setSuccessVisible] = useState(false)
     const [newAdded, setNewAdded] = useState({})
 
-    const resetOrder = async () => {
+    const resetOrder = () => {
         dispatch(getCartClear())
         dispatch(getOrderReset())
         dispatch(getAdresseReset())
         dispatch(getResetPayement())
         dispatch(getUserVilleReset())
-        dispatch(getConnectedUserData())
-        await dispatch(getAllMainData())
-        dispatch(loadArticles())
-        dispatch(getAllLocation())
-        dispatch(getServices())
     }
 
     const saveOrder = async () => {
@@ -80,25 +72,26 @@ function OrderScreen({navigation}) {
             fraisTransport: getShippingRate(),
             montant: getTotal(),
             dateLivraisonDepart:livraisonDate,
-            typeCmde: currentOrder.type
+            typeCmde: currentOrder.type,
+            cashback: selectedPayemet.mode.toLowerCase() === 'cash'?getPayementRate() : 0,
+            couverture: selectedPayemet.mode.toLowerCase() === 'credit' && selectedParrains.length === 0?'fidelity' : 'parrainage'
         }
-         await dispatch(makeOrder({order, parrains:selectedParrains}))
-        const error =  store.getState().entities.order.error
-        if(error !== null) {
-            Alert.alert('Echec!!', 'Impossible de faire la commande maintenant', [
-                {text: 'ok', onPress: () => navigation.navigate(routes.HOME)}
-            ], {cancelable: false})
-        } else {
 
-            const newAdded = store.getState().entities.order.newAdded
-            setNewAdded(newAdded)
-            setSuccessVisible(true)
-        }
+               await dispatch(makeOrder({order, parrains:selectedParrains}))
+              const error =  store.getState().entities.order.error
+              if(error !== null) {
+                  Alert.alert('Echec!!', 'Impossible de faire la commande maintenant', [
+                      {text: 'ok', onPress: () => navigation.navigate(routes.HOME)}
+                  ], {cancelable: false})
+              } else {
+                  const newAdded = store.getState().entities.order.newAdded
+                  setNewAdded(newAdded)
+                  setSuccessVisible(true)
+              }
     }
 
     const handleGoToOrder = async () => {
         setSuccessVisible(false)
-        await resetOrder()
         if(newAdded.typeCmde === 'article') {
             navigation.navigate(routes.USER_ORDER)
         }else if(newAdded.typeCmde === 'location') {
@@ -106,6 +99,7 @@ function OrderScreen({navigation}) {
         }else {
             navigation.navigate(routes.USER_SERVICE)
         }
+        resetOrder()
     }
 
     return (
@@ -220,7 +214,9 @@ function OrderScreen({navigation}) {
             <OrderSuccessModal
                 goHome={async () => {
                     setSuccessVisible(false)
-                    await resetOrder()
+                    resetOrder()
+                    dispatch(getConnectedUserData())
+                    dispatch(getAllMainData())
                     navigation.navigate(routes.HOME)
                 }}
                 goToOrder={handleGoToOrder}
@@ -258,6 +254,7 @@ const styles = StyleSheet.create({
     finalButton: {
         alignSelf: 'center',
         marginVertical: 40,
+        width: 300
     },
     totalFinal: {
         flexDirection: 'row',

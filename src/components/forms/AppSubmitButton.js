@@ -3,10 +3,11 @@ import {useFormikContext} from 'formik'
 
 import AppButton from "../AppButton";
 
-function AppSubmitButton({title,iconName, style, labelStyle}) {
+function AppSubmitButton({title,iconName,height=50, style, labelStyle}) {
     const {handleSubmit} = useFormikContext()
     return (
           <AppButton
+              contentStyle={{height: height}}
               style={[{marginHorizontal: 20},style]}
               labelStyle={labelStyle}
               iconName={iconName}

@@ -88,16 +88,12 @@ function EserviceScreen({route, navigation}) {
             data={currentData} keyExtractor={item =>item.id.toString()}
                   renderItem={({item})=>
                       <AppCardNew
+                          item={item}
                           editItem={() => navigation.navigate(routes.NEW_SERVICE, item)}
                           deleteItem={() => handleDeleteProduct(item)}
-                          minAmount={item.montantMin}
-                          maxAmount={item.montantMax}
                           viewDetails={() =>navigation.navigate(routes.SERVICE_DETAIL, item)}
                           addToCart={() => handleAddToCart(item)}
-                          description={item.libelle}
-                          source={{uri: item.imagesService[0]}}
-                          itemType={item.Categorie.typeCateg || 'e-service'}
-                          notInStock={!item.isDispo}/>
+                      />
                   }/>}
             {!loading && currentData.length === 0 && serviceError === null && <View style={{
                 flex: 1,

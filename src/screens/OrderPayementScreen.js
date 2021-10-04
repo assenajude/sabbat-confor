@@ -20,14 +20,16 @@ import {AntDesign, EvilIcons, Octicons} from "@expo/vector-icons";
 import ConditionsModal from "../components/payement/ConditionsModal";
 import ParrainListModal from "../components/payement/ParrainListModal";
 import routes from "../navigation/routes";
-import useAuth from "../hooks/useAuth";
+import AppAmountValue from "../components/AppAmountValue";
 
 function OrderPayementScreen({navigation}) {
     const dispatch = useDispatch()
-    const {formatPrice} = useAuth()
-    const {getPayementRate, getTotal} = usePlaceOrder()
+    const {getPayementRate,getShippingRate, getTotal} = usePlaceOrder()
     const {permitCredit, isPlanDisabled} = usePayementPlan()
     const currentUserData = useSelector(state => state.profile.connectedUser)
+    const currentOrder = useSelector(state => state.entities.order.currentOrder)
+    const currentPlan = useSelector(state => state.entities.payement.currentPlan)
+
     const totalParrains = useSelector(state => {
         let total = 0
         const allParrains = state.entities.order.currentOrderParrains
@@ -41,12 +43,13 @@ function OrderPayementScreen({navigation}) {
     const loading = useSelector(state => state.entities.payement.loading)
     const selectedPayement = useSelector(state => state.entities.payement.selectedPayement)
     const selectedPlan = useSelector(state => state.entities.payement.currentPlan)
-    const livraisonLoading = useSelector(state => state.entities.userAdresse.loading)
     const typeCmde = useSelector(state => state.entities.shoppingCart.type)
     const [openConditionsModal, setOpenConditionsModal] = useState(false)
     const [parrainModalVisible, setParrainModalVisible] = useState(false)
     const [creditOptionModal, setCreditOptionModal] = useState(false)
     const [selectedOption, setSelectedOption] = useState('')
+
+    const isPlanSelected = Object.keys(currentPlan).length>0
 
 
     const handleDismissParrainModal = () => {
@@ -77,15 +80,9 @@ function OrderPayementScreen({navigation}) {
     }
 
 
-    if(loading) {
-        return (
-            <AppActivityIndicator visible={loading}/>
-        )
-    }
-
-
     return (
         <>
+            <AppActivityIndicator visible={loading}/>
             <ConditionsModal conditionModalVisible={openConditionsModal} dismissConditionModal={() => setOpenConditionsModal(false)}/>
             <ParrainListModal parrainageModalVisible={parrainModalVisible} dismissParrainModal={handleDismissParrainModal}/>
         <ScrollView>
@@ -94,29 +91,30 @@ function OrderPayementScreen({navigation}) {
                     <AntDesign name="infocirlceo" size={20} color={colors.bleuFbi} />
                     <AppText>Avant de faire une commande à credit, </AppText>
                 </View>
-                <View style={{flexDirection: 'row', alignItems: 'center',width:'90%', paddingHorizontal: 20}}>
+                <View style={{alignItems: 'center',width:'90%', paddingHorizontal: 20}}>
                     <View>
                         <AppText>assurez-vous de respecter les</AppText>
                     </View>
-                    <TouchableOpacity onPress={() => setOpenConditionsModal(true)}>
-                        <AppText style={{color: colors.bleuFbi}}>conditions d'eligibités</AppText>
-                    </TouchableOpacity>
-
+                    <AppButton
+                        mode='text'
+                        title="conditions d'eligibité"
+                        onPress={() => setOpenConditionsModal(true)}
+                    />
                 </View>
             </View>
             <View style={styles.summary}>
-                <View style={styles.itemLine}>
-                    <AppText style={{fontWeight: 'bold'}} >Montant actuel commande: </AppText>
-                    <AppText style={{fontWeight: 'bold', color: colors.rougeBordeau}}>{formatPrice(getTotal()-getPayementRate())}</AppText>
-                </View>
-                <View style={styles.itemLine}>
-                    <AppText style={{fontWeight: 'bold'}}>Interet payement: </AppText>
-                    <AppText style={{fontWeight: 'bold', color: colors.rougeBordeau}}> {formatPrice(getPayementRate())}</AppText>
-                </View>
-                <View style={styles.itemLine}>
-                    <AppText style={{fontWeight: 'bold'}}>Net actuel à payer: </AppText>
-                    <AppText style={{fontWeight: 'bold', color: colors.rougeBordeau}}>{formatPrice(getTotal())}</AppText>
-                </View>
+                <AppAmountValue
+                    value={currentOrder.amount + getShippingRate()}
+                    label='Montant actuel'
+                />
+                <AppAmountValue
+                    value={getPayementRate()}
+                    label={isPlanSelected && currentPlan.libelle.toLowerCase() === 'cash prime'?'prime cash-back' : isPlanSelected && currentPlan.libelle.toLowerCase() === 'cash back'?'Reduction' : 'Intéret crédit'}
+                />
+                <AppAmountValue
+                    value={getTotal()}
+                    label='Net à payer'
+                />
             </View>
             <View>
                 <View style={styles.headerStyle}>
@@ -173,7 +171,7 @@ function OrderPayementScreen({navigation}) {
                                 if(isPlanDisabled(plan)) {
                                     return alert('Vous ne pouvez pas choisir ce plan pour cette commande, veuillez choisir un autre plan SVP')
                                 }
-                                dispatch(getSelectedPlan(plan))
+                                dispatch(getSelectedPlan({...plan, cashback: getPayementRate()}))
                             }} planDelai={plan.nombreMensualite>0?plan.nombreMensualite+' m':'3 j'}
                             showDetail={plan.showPlanDetail} getDetails={() => dispatch(getPlanDetail(plan.id))}
                             goToPlanDetail={() => navigation.navigate('AccueilNavigator', {screen: 'PlanDetailScreen', params: plan})}
@@ -238,7 +236,7 @@ function OrderPayementScreen({navigation}) {
 
                 {selectedOption.length>0 &&
                   <AppButton
-                      style={{alignSelf: 'center'}}
+                      style={{alignSelf: 'center',marginVertical: 40, width: 300}}
                       title='continuer' onPress={handleModalOptionNext}/>
             }
                 </View>
@@ -256,10 +254,6 @@ const styles = StyleSheet.create({
         margin: 10,
         borderWidth: 1,
         borderRadius: 10
-    },
-    itemLine: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
     },
     modePayement: {
         flexDirection: 'row',
@@ -281,7 +275,8 @@ const styles = StyleSheet.create({
     },
     buttonStyle: {
         alignSelf: 'center',
-        marginVertical: 50
+        marginVertical: 50,
+        width: 300
     },
     optionContainer: {
         backgroundColor: colors.blanc,

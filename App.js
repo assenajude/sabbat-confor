@@ -1,6 +1,8 @@
 
 import React from "react";
 import {Provider} from 'react-redux'
+import {Provider as PaperProvider} from 'react-native-paper'
+
 
 import configureStore from "./src/store/configureStore";
 
@@ -16,7 +18,9 @@ export default function App() {
   return (
       <SafeAreaProvider>
         <Provider store={store}>
-          <AppWrapper/>
+            <PaperProvider>
+                <AppWrapper/>
+            </PaperProvider>
         </Provider>
       </SafeAreaProvider>
   )

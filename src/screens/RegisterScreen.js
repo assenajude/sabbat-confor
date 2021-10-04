@@ -31,11 +31,9 @@ function RegisterScreen({navigation}) {
     const store = useStore()
     const {registerForPushNotificationsAsync} = useNotification()
     const {initUserDatas} = useAuth()
-    const loading = useSelector(state => state.auth.loading)
     const [registerFailed, setRegisterFailed] = useState(false)
     const [loginError, setLogginError] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-    const [tokenLoading, setTokenLoading] = useState(false)
     const [appLoading, setAppLoading] = useState(false)
 
 
@@ -49,6 +47,7 @@ function RegisterScreen({navigation}) {
             email: user.email,
             password: user.password
         }
+        setAppLoading(true)
             await dispatch(register(userData));
             const error = store.getState().auth.error
             if(error !== null) {
@@ -61,22 +60,20 @@ function RegisterScreen({navigation}) {
                 const registeredToken = store.getState().profile.connectedUser.pushNotificationToken
                 if(registeredToken) pushToken = registeredToken
                 else {
-                    setTokenLoading(true)
                     pushToken = await registerForPushNotificationsAsync()
-                    setTokenLoading(false)
                 }
                 await dispatch(signin({...user, pushNotificationToken: pushToken}))
                 const loginError = store.getState().auth.error
                 if(loginError !== null) {
+                    setAppLoading(false)
                     setLogginError(true)
                     setErrorMessage("Votre compte a été créé mais nous n'avons pas pu vous connecter")
                     return;
                 } else {
-                    setAppLoading(true)
                     await initUserDatas()
-                    setAppLoading(false)
                 }
             }
+            setAppLoading(false)
        navigation.navigate('AccueilNavigator', {screen: routes.HOME})
     }
 
@@ -89,7 +86,7 @@ function RegisterScreen({navigation}) {
 
     return (
         <>
-            <AppActivityIndicator visible={loading || tokenLoading || appLoading}/>
+            <AppActivityIndicator visible={appLoading}/>
             <ScrollView style={{marginBottom: 20}}>
             <Image resizeMode='contain' style={styles.logoStyle} source={require('../assets/icon.png')} />
                 <AppErrorMessage visible={registerFailed || loginError} error={errorMessage}/>
@@ -129,13 +126,16 @@ function RegisterScreen({navigation}) {
                         name='confirmation'
                         secureTextEntry autoCapitalize='none'/>
 
-                    <AppSubmitButton style={{marginTop: 40}} title='Inscrivez-vous' />
+                    <AppSubmitButton
+                        style={{marginTop: 40, alignSelf: 'center', width: 300}} title='Inscrivez-vous' />
                 </AppForm>
                 <View style={{
-                    marginVertical: 20
+                    marginVertical: 20,
+                    alignItems: 'center'
                 }}>
                     <AppText>Avez-vous déjà un compte?</AppText>
                     <Button
+                        style={{width: 300}}
                         onPress={() => navigation.navigate(routes.LOGIN)}
                         mode='text'
                     >

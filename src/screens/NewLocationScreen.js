@@ -15,6 +15,7 @@ import AppUploadProgress from "../components/AppUploadProgress";
 import AppFormItemPicker from "../components/forms/AppFormItemPicker";
 import routes from "../navigation/routes";
 import AppLabelWithValue from "../components/AppLabelWithValue";
+import AppButton from "../components/AppButton";
 
 const locationValideSchema = Yup.object().shape({
     libelle: Yup.string(),
@@ -114,6 +115,10 @@ function NewLocationScreen({navigation, route}) {
         <ScrollView contentContainerStyle={{paddingTop: 10, paddingBottom: 20}}>
             <View>
                 <AppButton
+                    style={{
+                        alignSelf: 'flex-start',
+                        marginVertical: 20
+                    }}
                     title='Select Localisation'
                     onPress={() => navigation.navigate('AccueilNavigator',{screen: "OtherMain", params: {screen: routes.LOCALISATION}})}/>
                 {selectedLocalisation &&
@@ -152,7 +157,9 @@ function NewLocationScreen({navigation, route}) {
                 <AppFormField name='caution' title='Nombre de part pour la caution'/>
                 <AppFormField name='frequence' title='Frequence de location'/>
                 <AppFormSwitch title='Possiblité de louer à credit?' name='aide'/>
-                <AppSubmitButton title='Ajouter'/>
+                <AppSubmitButton
+                    style={{marginVertical: 40}}
+                    title='Ajouter'/>
             </AppForm>
         </ScrollView>
      </>

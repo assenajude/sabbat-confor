@@ -29,14 +29,14 @@ function UserAdresseItem({adresseName, villeName, telephone, otherAdresse,
                 <AppIconButton
                     onPress={editAddress}
                     iconName='account-edit'
-                    iconColor={colors.bleuFbi}
-                    buttonContainer={styles.icon}
+                    iconColor={colors.blanc}
+                    buttonContainer={[styles.icon, {backgroundColor: colors.bleuFbi}]}
                 />
                 <AppIconButton
                     onPress={deleteAddress}
                     iconName='account-remove'
-                    iconColor={colors.rougeBordeau}
-                    buttonContainer={[styles.icon, {marginLeft: 30}]}
+                    iconColor={colors.blanc}
+                    buttonContainer={[styles.icon, {backgroundColor: colors.rougeBordeau,marginLeft: 30}]}
                 />
             </View>
         </View>
@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
         width: '80%'
     },
    icon: {
-       backgroundColor: colors.leger,
        height: 60,
        width: 60,
        borderRadius: 30

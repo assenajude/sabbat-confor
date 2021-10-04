@@ -12,7 +12,7 @@ import {getLogout} from '../../store/slices/authSlice'
 import useAuth from "../../hooks/useAuth";
 import AppAvatar from "./AppAvatar";
 import AppText from "../AppText";
-import {Button, Avatar, IconButton} from "react-native-paper";
+import {Button,IconButton} from "react-native-paper";
 
 function DrawerContent(props) {
     const dispatch = useDispatch()
@@ -77,7 +77,7 @@ function DrawerContent(props) {
                 color={Color.bleuFbi}
                 style={styles.help}
                 icon='head-question'
-                size={40}/>
+                size={30}/>
             </View>
             <DrawerItemList {...props} />
             <DrawerItem
@@ -158,7 +158,7 @@ function DrawerContent(props) {
         </DrawerContentScrollView>
             {isUser &&
             <AppButton
-                style={{alignSelf: 'center', marginVertical: 10, backgroundColor: Color.rougeBordeau}}
+                style={{alignSelf: 'center', marginVertical: 10, backgroundColor: Color.rougeBordeau, width: 300}}
                 iconName='logout'
                 title='Se deconnecter'
                 onPress={() => handleLogout()}/>}
@@ -173,12 +173,14 @@ const styles = StyleSheet.create({
     },
     help: {
         position: 'absolute',
-        right: 0,
-        top: -10,
+        right: 15,
+        top: -5,
+        backgroundColor: Color.lightGrey
     },
     login:{
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         marginHorizontal: 5,
         marginVertical: 10
     },

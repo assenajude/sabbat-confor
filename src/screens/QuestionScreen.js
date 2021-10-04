@@ -51,7 +51,7 @@ function QuestionScreen({navigation, route}) {
             }} validationSchema={validQuestion} onSubmit={handleAskQuestion}>
                 <AppFormField title='Votre question' name='libelle'/>
                 {mode === 'edit' && <AppFormSwitch name='isValid' title='Valider la Question?'/>}
-                <AppSubmitButton title='Poser votre question'/>
+                <AppSubmitButton style={{alignSelf: 'center'}} title='Poser votre question'/>
             </AppForm>
         </ScrollView>
             </>

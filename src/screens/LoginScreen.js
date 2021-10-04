@@ -15,6 +15,9 @@ import {signin} from '../store/slices/authSlice'
 import routes from '../navigation/routes'
 import useAuth from "../hooks/useAuth";
 import AppActivityIndicator from "../components/AppActivityIndicator";
+import {getOrdersByUser} from "../store/slices/orderSlice";
+import {getFacturesByUser} from "../store/slices/factureSlice";
+import {getUserParrainageCompte} from "../store/slices/parrainageSlice";
 
 
 const loginValidationSchema = yup.object().shape({
@@ -32,11 +35,11 @@ function LoginScreen({navigation, route}) {
     const pushToken = useSelector(state => state.profile.connectedUser.pushNotificationToken)
     const [error, setError] = useState(null)
     const [appLoading, setAppLoading] = useState(false)
-    const [email, setEmail] = useState('')
 
     const passRef = useRef()
 
     const handleLogin = async (user) => {
+        setAppLoading(true)
         const isEmail = isValidEmail(user.username)
         let data = {}
         if(isEmail) {
@@ -49,21 +52,27 @@ function LoginScreen({navigation, route}) {
         const error = store.getState().auth.error
         if(error !== null) {
             setError(error)
+            setAppLoading(false)
             return;
         }
-        setAppLoading(true)
         await initUserDatas()
         setAppLoading(false)
         if(connexionParams) {
             const paramsType = connexionParams.type
             const moreInfo = connexionParams.moreInfo
             if(paramsType && paramsType === 'order') {
+                setAppLoading(true)
+                await dispatch(getOrdersByUser())
+                setAppLoading(false)
                 const userOrders = store.getState().entities.order.currentUserOrders
                 const selectedOrder = userOrders.find(order => order.id === connexionParams.orderId)
                 if(selectedOrder) navigation.navigate('OrderDetailsScreen', selectedOrder)
                 else navigation.navigate(routes.HOME)
             }
             if(paramsType && paramsType === 'facture') {
+                setAppLoading(true)
+                await dispatch(getFacturesByUser())
+                setAppLoading(false)
                 const userFactures = store.getState().entities.facture.list
                 const selectedFacture = userFactures.find(facture => facture.id === connexionParams.factureId)
                 if(selectedFacture) navigation.navigate('FactureDetailsScreen', selectedFacture)
@@ -111,6 +120,7 @@ function LoginScreen({navigation, route}) {
                         validationSchema={loginValidationSchema}
                     >
                         <AppFormField
+                            keyboardType='email-address'
                             returnKeyType='next'
                             onSubmitEditing={() => passRef.current.focus()}
                             title='Username ou email'
@@ -125,13 +135,16 @@ function LoginScreen({navigation, route}) {
                             name='password'
                             autoCapitalize='none'
                         />
-                        <AppSubmitButton style={{marginTop: 40}} title='Connectez-vous'/>
+                        <AppSubmitButton
+                            style={{width: 300,marginTop: 40, alignSelf: 'center'}}
+                            title='Connectez-vous'/>
                     </AppForm>
                 <View style={{
                     marginTop: 20
                 }}>
                     <AppText>email/mot de passe oublié?</AppText>
                     <Button
+                        style={{alignSelf: 'center', width: 300}}
                         onPress={() => Linking.openURL('tel:0708525827')}
                         mode='text'
                     >
@@ -141,6 +154,7 @@ function LoginScreen({navigation, route}) {
                      <View>
                          <AppText style={{color:Color.dark}}>Vous n'avez pas de compte?</AppText>
                          <Button
+                             style={{alignSelf: 'center', width: 300}}
                              onPress={() => navigation.navigate('AccueilNavigator', {screen: routes.REGISTER})}
                              mode='text'
                          >

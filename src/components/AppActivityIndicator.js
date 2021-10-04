@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Modal} from "react-native";
+import {View, StyleSheet} from "react-native";
 import colors from "../utilities/colors";
 import LottieView from "lottie-react-native";
 
@@ -7,22 +7,17 @@ import LottieView from "lottie-react-native";
 function AppActivityIndicator({visible}) {
     if(!visible) return null;
     return (
-        <Modal visible={visible} transparent>
-            <View style={{
-                backgroundColor: colors.dark,
-                opacity: 0.3,
-                height: '100%',
-                width: '100%'
-            }}>
+        <>
+            <View style={styles.mainContainer}>
             </View>
             <View style={styles.container}>
                 <LottieView
-                    style={{ width: 200, height: 100}}
+                    style={{ width: 100}}
                     autoPlay={true}
                     loop={true}
                     source={require('../assets/animations/loading.json')}/>
             </View>
-        </Modal>
+        </>
 
 
     )
@@ -38,7 +33,16 @@ const styles = StyleSheet.create({
         width: '90%',
         height: 100,
         backgroundColor: colors.blanc,
-        top: '40%'
+        top: '50%',
+        zIndex: 10
+    },
+    mainContainer: {
+        backgroundColor: colors.dark,
+        opacity: 0.3,
+        height: '100%',
+        width: '100%',
+        zIndex: 5,
+        position: 'absolute'
     }
 })
 

@@ -138,7 +138,8 @@ function UserOrderItem({order, header,isDemande,
                             buttonContainer={styles.accordIcon}
                             iconName={showDetail?'chevron-up':'chevron-down'}/>
                     </View>
-                    {showDetail && orderItems && <View style={{ minWidth: '90%', backgroundColor: colors.blanc, marginTop: 5}}>
+                    {showDetail && orderItems &&
+                    <View style={{ minWidth: '90%', backgroundColor: colors.blanc, paddingVertical:20 }}>
                         {orderItems.map((order, index) =>
                                 <AppLabelWithValue
                                     key={index.toString()}
@@ -149,12 +150,13 @@ function UserOrderItem({order, header,isDemande,
                                 />
                         )}
                         <AppLabelWithValue label='Frais livraison ' labelValue={formatPrice(order.fraisTransport)}/>
-                        <AppLabelWithValue label="Taux d'interêt " labelValue={formatPrice(order.interet)}/>
+                        <AppLabelWithValue label={modePayement.toLowerCase() === 'cash'? "Réduction" : "Taux d'interêt "} labelValue={formatPrice(order.interet)}/>
                         <AppLabelWithContent content={formatDate(order.dateCmde)} label="Date commande "/>
                         <AppLabelWithContent label='Livraison prevue le ' content={formatDate(order.dateLivraisonDepart)}/>
                         {!isDemande && livraisonValue.toLowerCase() === 'livré' &&
                         <AppLabelWithContent label='Livré le ' content={formatDate(order.dateLivraisonFinal)}/>}
-                        <View style={{
+                        <View
+                            style={{
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'space-between'
@@ -261,7 +263,8 @@ const styles = StyleSheet.create({
     mainContainer: {
         backgroundColor: colors.blanc,
         marginTop: 30,
-        padding: 10
+        padding: 10,
+        paddingBottom: 10
     },
     expired: {
         position: 'absolute',

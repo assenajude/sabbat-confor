@@ -26,10 +26,8 @@ function FactureListItem({facture, deleteItem}) {
     const {getModePayement, getItems} = useOrderInfos()
     const tranchesList = useSelector(state => state.entities.tranche.list)
     const endFacture = facture.montant === facture.solde
-    const progress = Number(facture?.ratio)
     const orderItems = getItems(facture.CommandeId)
     const okPayement = facture.montant === facture.solde
-    const showProgress =  progress && progress < 1 || facture.Tranches.some(tranche => tranche.payedState === 'pending')
     const waitingTranchePayed = facture.Tranches.some(tranche => tranche.payedState === 'pending')
     const tranches = tranchesList.filter(tranche => tranche.FactureId === facture.id)
 
@@ -46,7 +44,6 @@ function FactureListItem({facture, deleteItem}) {
             return alert("Nous n'avons pas pu joindre le serveur, veuillez reessayer plutard.")
         }
         const selectedOrder =  store.getState().entities.order.selectedOrder
-        console.log(selectedOrder);
         navigation.navigate(routes.ORDER_DETAILS, selectedOrder)
     }
 
@@ -55,9 +52,6 @@ function FactureListItem({facture, deleteItem}) {
               <AppActivityIndicator visible={visible}/>
               <View style={styles.mainContainer}>
                       <AppModePayement modePayement={getModePayement(facture.CommandeId)}/>
-                 {/* {showProgress  &&  <View style={{marginVertical: 20, marginLeft: 40}}>
-                      <Progress.Bar progress={progress}  width={200} height={10} color={progress<0.5?colors.rougeBordeau:0.5<progress<1?'orange':colors.vert}/>
-                  </View>}*/}
                   {orderItems && <ScrollView horizontal>
                       {orderItems.map((item, index) => <TouchableOpacity  key={index}>
                           <Image resizeMode='stretch' style={{height: 50, width: 50, margin: 10}} source={{uri: item.OrderItem.image}}/>

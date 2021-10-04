@@ -30,11 +30,11 @@ function CategorieScreen({navigation}) {
         if(categorie.typeCateg === 'service') {
             const selectedServices = serviceData.filter(service => service.CategorieId === categorie.id)
             params = selectedServices || []
-            navigation.navigate('BottomTabNavigator', {screen: "E-service", params:{screen: 'ServiceScreen',params:{products: params, headerTitle: categorie.libelleCateg}}})
+            navigation.navigate("E-service", {screen: 'ServiceScreen',params:{products: params, headerTitle: categorie.libelleCateg}})
         }else {
             const selectedProd = mainData.filter(item => item.CategorieId === categorie.id)
             params = selectedProd || []
-            navigation.navigate('BottomTabNavigator', {screen: "AccueilNavigator", params:{screen: routes.ACCUEIL,params:{products: params, headerTitle: categorie.libelleCateg}}})
+            navigation.navigate(routes.ACCUEIL,{products: params, headerTitle: categorie.libelleCateg})
         }
     }
 
@@ -79,7 +79,8 @@ return (
             onValueChange={value => setSelectedSpace(value)}
             label='Trier par :'
             items={['Tous','e-commerce', 'e-location', 'e-service']}/>
-           {currentData.length>0 && <FlatList
+           {currentData.length>0 &&
+           <FlatList
                 data={currentData}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item}) =>
@@ -103,20 +104,13 @@ return (
             <Text>Aucune categorie trouvee</Text>
             </View>
             }
-        {userRoleAdmin() && <View style={styles.addNew}>
-            <ListFooter onPress={() => navigation.navigate(routes.NEW_CATEG)}/>
-        </View>}
+        {userRoleAdmin() &&
+            <ListFooter
+                onPress={() => navigation.navigate(routes.NEW_CATEG)}/>
+        }
     </>
 )
 }
 
-const styles = StyleSheet.create({
-    addNew: {
-        position :'absolute',
-        bottom: 5,
-        right: 5
-    },
-
-})
 
 export default CategorieScreen;

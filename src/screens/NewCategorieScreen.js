@@ -73,7 +73,6 @@ function NewCategorieScreen({navigation, route}) {
         <>
             <AppActivityIndicator visible={loading}/>
             <AppUploadProgress progress={uploadProgress} startProgress={uploadModal}/>
-        <View style={styles.container}>
         <ScrollView>
             <AppForm initialValues={{
                 libelle:selectedCateg?selectedCateg.libelleCateg :  '',
@@ -90,16 +89,7 @@ function NewCategorieScreen({navigation, route}) {
             </AppForm>
 
         </ScrollView>
-        </View>
             </>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        top: 50
-    }
-})
-
 export default NewCategorieScreen;
